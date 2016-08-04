@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    
+    <meta name="description" content="Welcome to MOO Viz. Our goal is to help you gain insights from the solutions to your multi-objective optimization problems by way of visualization.">
+    <meta name="author" content="Nicholas Kullman">
+    <link rel="icon" href="./assets/favicon.ico">
+
+    <title>A NEW PAGE</title>
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    
+    <!-- Latest compiled and minified BootStrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional BootStrap theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified BootStrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- Custom styles for this page -->
+    <link href="./assets/css/main.css" rel="stylesheet">
+    
+
+  </head>
+
+  <body>
+
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">MOO Viz</h3>
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#">Features</a></li>
+                  <li><a href="#">Contact</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+
+          <div class="inner cover">
+            <h1 class="cover-heading">Welcome to MOO Viz</h1>
+            <p class="lead">To get started, upload a dataset or choose from our list of demos.</p>
+            <h2 class="cover-heading">Upload your own</h2>
+            <p class="lead">
+              <label class="btn btn-default btn-file">
+                Browse<input id="datasetinput" type="file" style="display: none;">
+              </label>
+            </p>
+            <h2 class="cover-heading">Use one of ours</h2>
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Demo datasets
+              <span class="caret"></span></button>
+              <ul class="dropdown-menu">
+                <li class="datasetoption" id="deschutesdata"><a href="#">Climate change in the Deschutes National Forest</a></li>
+                <li class="datasetoption" id="chiledata"><a href="#">Native forest restoration in Chile</a></li>
+                <li class="datasetoption" id="packforestdata"><a href="#">Comparing management alternatives in the Pack Forest</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mastfoot">
+            <div class="inner">
+              <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- custom scripts -->
+    <script src="../assets/js/mooviz/viz.js"></script>
+  </body>
+</html>
