@@ -98,6 +98,7 @@ function getNadirVectors(d,dc){
 function getNormalizedDatasetStats(){
     var outstats = {};
     var currIdeals = ideals["normalized"];
+    var currNadirs = nadirs["normalized"];
     var currDataset = ndatasets;
 
     // Compute average distance to ideal solution
@@ -108,6 +109,9 @@ function getNormalizedDatasetStats(){
 
     // Compute spacing metric
     outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
+
+    // Compute unary hypervolume indicator
+    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currIdeals);
 
     return outstats;
 }
@@ -125,6 +129,7 @@ function getNormalizedDatasetStats(){
 function getDatasetStats(){
     var outstats = {};
     var currIdeals = ideals["original"];
+    var currNadirs = nadirs["original"];
     var currDataset = datasets;
 
     // Compute average distance to ideal solution
@@ -136,7 +141,131 @@ function getDatasetStats(){
     // Comptue Scott's spacing metric
     outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
 
+    // Compute unary hypervolume indicator
+    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
+
     return outstats;
+}
+
+function computeHypervolumes(datasets,idealvecs,nadirvecs){
+    var hypervols = {};
+
+    for (f in datasets){
+        hypervols[f] = computeHypervolume(datasets[f], idealvecs[f]), nadirvecs[f];
+    }
+
+    function computeHypervolume(dataset,idealvec,nadirvec){
+        var hypervolume = 0;
+
+        // primary objective:
+        var po = Object.keys(idealvec)[0];
+        // secondary objectives:
+        var sos = Object.keys(idealvec).filter(function(a){return a !== po;});
+        // clone data for local use:
+        var ldat = JSON.parse(JSON.stringify(dataset));
+        // Translate objectives' scales (all max from 0->best)
+        for (obj in idealvec){
+            var newObjScale = d3.scaleLinear()
+                    .domain([nadirvec[obj],idealvec[obj]])
+                    .range([0,Math.abs(nadirvec[obj] - idealvec[obj])]);
+            ldat = ldat.map(function(row){
+                row[obj] = newObjScale(row[obj]);
+                return row;
+            })
+        }
+        // sort descending by primary objective
+        ldat = ldat.sort(function(a,b){
+            return b[po] - a[po];
+        });
+        // list of frontier points already accounted for (currently empty):
+        var completedFrontierPoints = [];
+
+        /* Recursive Methods for Computation */
+        function getSideVolInSubDim(dim, frontierPoint, completedFrontierPoints){
+
+            var sideVolInSubDim = 0;
+            
+            // sorted list of boundary solutions with dim component larger than current point
+            var sideSols_dim = completedFrontierPoints.filter(function(e){
+                return e["BoundarySolution"] && e[dim]>frontierPoint[dim];
+            }).sort(function(a,b){
+                return a[dim] - b[dim];
+            });
+
+            // If the list is empty, no side volume to add, so return
+            if (sideSols_dim.length === 0) return sideVolInSubDim;
+            // get list of additional dimensions required to compute volume
+            var otherSecondaryDims = sos.filter(function(a){return a !== dim;});
+            var prevDimComponent = frontierPoint[dim];
+            var currDimComponent = 0;
+            // cycle over side boundary sols in dim, computing volume for each
+            for (var i=0;i<sideSols_dim.length;i++){
+                currDimComponent = sideSols_dim[i][dim];
+                var dimDelta = currDimComponent - prevDimComponent;
+                var prodOfOtherDims = 1;
+                for (var d=0;d<otherSecondaryDims.length;d++) {prodOfOtherDims *= sideSols_dim[i][d];}
+                sideVolInSubDim += dimDelta*prodOfOtherDims;
+                prevDimComponent = currDimComponent;
+            }
+            return sideVolInSubDim;
+        }
+
+        function getSubDimVolumeFromFrontierPoint(frontierPoint, completedFrontierPoints){
+            // get the solution's sub-dimensional volume back to the origin
+            var subDimContribution =  1;
+            for (var d=0;d<sos.length;d++) {subDimContribution *= frontierPoint[d];}
+            // subtract everything pre-existing away from its
+            subDimContribution -= d3.sum(completedFrontierPoints,function(d){return d["SubDimContribution"]});
+            // add back in the sides
+            for(var dimidx = 0; dimidx < sos.length; dimidx++){
+                var dim = sos[dimidx];
+                subDimContribution += getSideVolInSubDim(dim,frontierPoint,completedFrontierPoints);
+            }
+            return subDimContribution;
+        }
+        
+        function getFrontierVolume(initFrontierVolume, remainingFrontierPoints, completedFrontierPoints){
+            if (remainingFrontierPoints.length === 0) { return initFrontierVolume; }
+            else{
+                // next solution to add to frontier
+                var currSol = remainingFrontierPoints[0];
+                // will always be non-dominated in sub-D space
+                currSol["BoundarySolution"] = true;
+                // change boundary status of points that the current solution dominates
+                for (var i=0;i<completedFrontierPoints.length;i++){
+                    if (completedFrontierPoints[i]["BoundarySolution"]){
+                        // assume the solution is dominated
+                        var isDominated = true;
+                        // and check to see if in any of the sub-dimensions it is better
+                        for (var oidx=0;oidx<sos.length;oidx++){
+                            // if it is, then it is nondominated
+                            if(currSol[sos[oidx]] <= completedFrontierPoints[i][sos[oidx]]) {isDominated=false;break;}
+                        }
+                        // if it is dominated, we need to update its BoundarySolution status to false
+                        if (isDominated){completedFrontierPoints[i]["BoundarySolution"]=false;}
+                    }
+                }
+                // get the sub-D volume for the current solution
+                currSol["SubDimContribution"] = getSubDimVolumeFromFrontierPoint(currSol,completedFrontierPoints);
+                // update frontier volume
+                initFrontierVolume += currSol["SubDimContribution"]*currSol[po];
+                // update the points added to the frontier
+                completedFrontierPoints.push(currSol);
+                // update the remaining frontier points by removing currSol, which is first point
+                remainingFrontierPoints.shift();
+                // recursive call
+                return getFrontierVolume(initFrontierVolume,remainingFrontierPoints,completedFrontierPoints);
+            }
+        }
+
+        /* End of methods. Call to compute: */
+        hypervolume = getFrontierVolume(hypervolume,ldat,completedFrontierPoints);
+        console.log(hypervolume);
+        return hypervolume;
+    }
+
+    return hypervols;
+
 }
 
 function computeSpacingMetric(datasets, idealvecs){
