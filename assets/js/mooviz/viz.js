@@ -116,22 +116,63 @@ function getNormalizedDatasetStats(){
     outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
 
     // Compute unary hypervolume indicator
-    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
+    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals);
 
     // Compute binary epsilon indicator
     outstats["binaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals,currNadirs);
 
+    // Compute binary hypervolume indicator
+    // This relies on output from the unary hypervolume computation, so it must be computed afterwards 
+    outstats["binaryHyperVolume"] = computeHypervolumes(currDataset,currIdeals,outstats["hypervolume"]);
+
     return outstats;
 }
 
-function computeHypervolumes(datasets,idealvecs,nadirvecs){
+function computeHypervolumes(datasets,idealvecs,unaryHypervols){
     var hypervols = {};
 
-    for (f in datasets){
-        hypervols[f] = computeHypervolume(datasets[f], idealvecs[f], nadirvecs[f]);
+    if (typeof unaryHypervols === 'undefined'){
+        for (f in datasets){
+            hypervols[f] = computeHypervolume(datasets[f], idealvecs[f]);
+        }
+    } else {
+        var frontierCombos = k_combinations(Object.keys(datasets),2);
+        for (var i=0;i<frontierCombos.length;i++){
+            var f1 = frontierCombos[i][0];
+            var f2 = frontierCombos[i][1];
+            var c1 = f1+"_"+f2;
+            var c2 = f2+"_"+f1;
+            var h1 = unaryHypervols[f1];
+            var h2 = unaryHypervols[f2];
+            var merged = removeDominated(datasets[f1].concat(datasets[f2]),idealvecs[f1]);
+            var mergedHypervol = computeHypervolume(merged,idealvecs[f1]);
+            hypervols[c1] = mergedHypervol - h2;
+            hypervols[c2] = mergedHypervol - h1;
+        }
+    }
+    /** Assumes all objectives are max and normalized */
+    function removeDominated(dataset,ivec){
+        // clone data
+        var result = JSON.parse(JSON.stringify(dataset));
+        // instantiate list of dominated indices
+        var domd = [];
+        // number of objectives to check in dominance tests
+        var numObj = Object.keys(ivec).length;
+        for (var i=0;i<dataset.length;i++){ // for each solution, check if there is another that is better than it
+            var currSol = dataset[i];
+            for (var j=0;j<dataset.length;j++){
+                if (i===j) continue;
+                var domingObjs = 0;
+                for (o in ivec){ if (dataset[j][o] >= dataset[i][o]) {domingObjs++;}}
+                if (domingObjs === numObj) {domd.push(i);}
+            }
+        }
+        // remove dominated solutions
+        for (var i=0;i<domd.length;i++){result.splice(domd[i],1);}
+        return result;
     }
 
-    function computeHypervolume(dataset,idealvec,nadirvec){
+    function computeHypervolume(dataset,idealvec){
         var hypervolume = 0;
 
         // primary objective:
@@ -320,7 +361,6 @@ function computeBinaryEpsilonIs(datasets,ivecs,nadirs){
         binaryEpsIs[c1] = computeBinaryEps(datasets[f1],datasets[f2],ivecs[f1]);
         binaryEpsIs[c2] = computeBinaryEps(datasets[f2],datasets[f1],ivecs[f1]);
     }
-    console.log(binaryEpsIs);
     return binaryEpsIs;
 }
 
