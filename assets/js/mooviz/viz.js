@@ -113,6 +113,9 @@ function getNormalizedDatasetStats(){
     // Compute unary hypervolume indicator
     outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
 
+    // Compute binary epsilon indicator
+    outstats["binaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals);
+
     return outstats;
 }
 
@@ -329,6 +332,41 @@ function computeUnaryEpsilonIs(datasets,ivecs){
     return unaryEpsIs;
 }
 
+function computeBinaryEpsilonIs(datasets,ivecs){
+
+    var binaryEpsIs = {};
+
+    var frontierCombos = k_combinations(Object.keys(datasets),2);
+
+    for (var i=0;i<frontierCombos;i++){
+        var f1 = frontierCombos[i][0];
+        var f2 = frontierCombos[i][1];
+        var d1 = THEDATASETALLMAXED;
+        var d2 = THEDATASETALLMAXED;
+        var combonm = f1+"_"+f2;
+        // This should work if all objs are set to Max. Look at the use of the scale from the hypervolume indicator
+        binaryEpsIs[combonm] = computeBinaryEps(d1,d2,ivecs[f1]);
+    }
+
+    function computeBinaryEps(dataset1,dataset2,ivec){
+        var eps = -Infinity;
+        for (var row2=0;row2<dataset2.length;row2++){
+            var minTranslationToCover = Infinity;
+            for (var row1=0;row1<dataset1.length;row1++){
+                var maxCoveringDist = 0;
+                for (col in ivec){
+                    maxCoveringDist = Math.max(maxCoveringDist,Math.abs(dataset2[row2][col]-dataset1[row1][col]));
+                }
+                minTranslationToCover = Math.min(minTranslationToCover,maxCoveringDist);
+            }
+            eps = Math.max(eps,minTranslationToCover);
+        }
+        return eps;
+    }
+
+    return binaryEpsIs;
+}
+
 function computeDistsToIdeal (datasets,ivecs){
 
     var distsToIdeal = {};
@@ -449,4 +487,42 @@ function arraySum(anArray){
         sum += anArray[i];
     }
     return sum;
+}
+
+function k_combinations(set, k) {
+	var i, j, combs, head, tailcombs;
+	
+	// There is no way to take e.g. sets of 5 elements from
+	// a set of 4.
+	if (k > set.length || k <= 0) {
+		return [];
+	}
+	
+	// K-sized set has only one K-sized subset.
+	if (k == set.length) {
+		return [set];
+	}
+	
+	// There is N 1-sized subsets in a N-sized set.
+	if (k == 1) {
+		combs = [];
+		for (i = 0; i < set.length; i++) {
+			combs.push([set[i]]);
+		}
+		return combs;
+	}
+	
+	combs = [];
+	for (i = 0; i < set.length - k + 1; i++) {
+		// head is a list that includes only our current element.
+		head = set.slice(i, i + 1);
+		// We take smaller combinations from the subsequent elements
+		tailcombs = k_combinations(set.slice(i + 1), k - 1);
+		// For each (k-1)-combination we join it with the current
+		// and store it to the set of k-combinations.
+		for (j = 0; j < tailcombs.length; j++) {
+			combs.push(head.concat(tailcombs[j]));
+		}
+	}
+	return combs;
 }
