@@ -101,32 +101,76 @@ function getNadirVectors(d,dc){
  * 
  * */
 function getNormalizedDatasetStats(){
-    var outstats = {};
+    var outstats = {frontier:{},interfrontier:{},intrafrontier:{}};
     var currIdeals = ideals["normalized"];
     var currNadirs = nadirs["normalized"];
     var currDataset = ndatasets;
 
+
     // Compute average distance to ideal solution
-    outstats["distToIdeal"] = computeDistsToIdeal(currDataset,currIdeals);
+    outstats["frontier"]["DistToIdeal"] = computeDistsToIdeal(currDataset,currIdeals);
 
     // Compute unary epsilon indicator
-    outstats["unaryEpsilon"] = computeUnaryEpsilonIs(currDataset,currIdeals);
+    outstats["frontier"]["Epsilon"] = computeUnaryEpsilonIs(currDataset,currIdeals);
 
     // Compute spacing metric
-    outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
+    outstats["frontier"]["Spacing"] = computeSpacingMetric(currDataset,currIdeals);
 
     // Compute unary hypervolume indicator
-    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals);
+    outstats["frontier"]["Hypervolume"] = computeHypervolumes(currDataset,currIdeals);
 
     // Compute binary epsilon indicator
-    outstats["binaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals,currNadirs);
+    outstats["interfrontier"]["BinaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals,currNadirs);
 
     // Compute binary hypervolume indicator
     // This relies on output from the unary hypervolume computation, so it must be computed afterwards 
-    outstats["binaryHyperVolume"] = computeHypervolumes(currDataset,currIdeals,outstats["hypervolume"]);
+    outstats["interfrontier"]["BinaryHypervolume"] = computeHypervolumes(currDataset,currIdeals,outstats["hypervolume"]);
+
+    // Compute intra-frontier statistics
+    for (f in currDataset){
+        outstats["intrafrontier"][f] = computeIntrafrontierStats(currDataset[f],currIdeals[f]);
+    }
 
     return outstats;
 }
+
+
+function computeIntrafrontierStats(dataset,ivec){
+    var result = {};
+
+    var objCombos = k_combinations(Object.keys(ivec),2);
+    for (var c=0;c<objCombos.length;c++){
+        var n1 = objCombos[c][0];
+        var n2 = objCombos[c][1]
+        var combonm = n1+"_"+n2;
+        result[combonm] = {};
+        var o1 = dataset.map(function(row){return row[n1]});
+        var o2 = dataset.map(function(row){return row[n2]});
+        // clone the ideal vector and remove all fields excet mvid and the current objectives
+        var ivecForDomdRemoval = JSON.parse(JSON.stringify(ivec));
+        for (key in ivecForDomdRemoval){
+            if (key === "mvid" || key === n1 || key === n2) continue;
+            delete ivecForDomdRemoval[key];
+        }
+        // local copy of the dataset with dominated solutions removed in the 2d plane for n1 and n2,
+        // and sorted in descending order according to the first objective
+        var ldat = removeDominated(JSON.parse(JSON.stringify(dataset)),ivecForDomdRemoval)
+            .sort(function(a,b){ return b[n1] - a[n1];});
+        var o1nd = ldat.map(function(row){return row[n1]});
+        var o2nd = ldat.map(function(row){return row[n2]});
+        result[combonm]["PearsonCoefficient"] = computePearsonCoefficient(o1,o2);
+        result[combonm]["2DHypervol"] = compute2DHypervol(o1nd,o2nd);
+    }
+    function compute2DHypervol(a1,a2){
+        var area = a1[0]*a2[0];
+        for (var i=1;i<a1.length;i++){
+            area += (a2[i]-a2[i-1])*a1[i];
+        }
+        return area;
+    }
+    return result;
+}
+
 
 function computeHypervolumes(datasets,idealvecs,unaryHypervols){
     var hypervols = {};
@@ -149,29 +193,6 @@ function computeHypervolumes(datasets,idealvecs,unaryHypervols){
             hypervols[c1] = mergedHypervol - h2;
             hypervols[c2] = mergedHypervol - h1;
         }
-    }
-    /** Assumes all objectives are max and normalized */
-    function removeDominated(dataset,ivec){
-        // clone data
-        var result = JSON.parse(JSON.stringify(dataset));
-        // instantiate list of dominated solution ids
-        var domd = [];
-        // number of objectives to check in dominance tests
-        var numObj = Object.keys(ivec).length;
-        for (var i=0;i<dataset.length;i++){ // for each solution, check if there is another that dominates it
-            var currSol = dataset[i];
-            for (var j=0;j<dataset.length;j++){
-                if (i===j) continue;
-                var domingObjs = 0;
-                for (o in ivec){ if (dataset[j][o] >= dataset[i][o]) {domingObjs++;}}
-                if (domingObjs === numObj) {domd.push(dataset[i]["mvid"]);break;}
-            }
-        }
-        // remove dominated solutions
-        result = result.filter(function(row){
-            return domd.indexOf(row["mvid"])<0;
-        })
-        return result;
     }
 
     function computeHypervolume(dataset,idealvec){
@@ -517,4 +538,65 @@ function k_combinations(set, k) {
 		}
 	}
 	return combs;
+}
+
+function computePearsonCoefficient(x, y) {
+    var shortestArrayLength = 0;
+  
+    var xy = [];
+    var x2 = [];
+    var y2 = [];
+  
+    for(var i=0; i<shortestArrayLength; i++) {
+        xy.push(x[i] * y[i]);
+        x2.push(x[i] * x[i]);
+        y2.push(y[i] * y[i]);
+    }
+  
+    var sum_x = 0;
+    var sum_y = 0;
+    var sum_xy = 0;
+    var sum_x2 = 0;
+    var sum_y2 = 0;
+  
+    for(var i=0; i< shortestArrayLength; i++) {
+        sum_x += x[i];
+        sum_y += y[i];
+        sum_xy += xy[i];
+        sum_x2 += x2[i];
+        sum_y2 += y2[i];
+    }
+  
+    var step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
+    var step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
+    var step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
+    var step4 = Math.sqrt(step2 * step3);
+    var answer = step1 / step4;
+  
+    return answer;
+}
+
+/** Assumes all objectives are max and normalized */
+function removeDominated(dataset,ivec){
+    // clone data
+    var result = JSON.parse(JSON.stringify(dataset));
+    // instantiate list of dominated solution ids
+    var domd = [];
+    // number of objectives to check in dominance tests
+    var numObj = Object.keys(ivec).length;
+    for (var i=0;i<dataset.length;i++){ // for each solution, check if there is another that dominates it
+        var currSol = dataset[i];
+        for (var j=0;j<dataset.length;j++){
+            if (i===j) continue;
+            var domingObjs = 0;
+            for (o in ivec){ if (dataset[j][o] >= dataset[i][o]) {domingObjs++;}}
+            // could be sped up by adding splice statement on result in below line
+            if (domingObjs === numObj) {domd.push(dataset[i]["mvid"]);break;}
+        }
+    }
+    // remove dominated solutions
+    result = result.filter(function(row){
+        return domd.indexOf(row["mvid"])<0;
+    })
+    return result;
 }
