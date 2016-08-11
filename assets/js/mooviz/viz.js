@@ -20,10 +20,8 @@ var nadirs = { original: {}, normalized:{} };
 nadirs["original"] = getNadirVectors(datasets, datacols);
 nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 
-// Compute statistics for both normalized and original datasets
-var datastats = { original: {}, normalized:{} };
-datastats["original"] = getDatasetStats();
-datastats["normalized"] = getNormalizedDatasetStats();
+// Compute frontier statistics
+var datastats = getNormalizedDatasetStats();
 
 
 
@@ -92,6 +90,13 @@ function getNadirVectors(d,dc){
  * Binary additive epsilon indicator
  * Unary hypervolume indicator
  * Unary epsilon indicator
+ * Schott's spacing metric
+ * Average distance to ideal
+ * 
+ * Only the normalized datasets are used in the analyis.
+ * This is the only way to make the objective space really make sense.
+ * Approach suggested by this source:
+ * http://www.tik.ee.ethz.ch/pisa/publications/emo-tutorial-2up.pdf
  * 
  * 
  * */
@@ -114,38 +119,7 @@ function getNormalizedDatasetStats(){
     outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
 
     // Compute binary epsilon indicator
-    outstats["binaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals);
-
-    return outstats;
-}
-
-/**
- * Compute dataset statistics for the original dataset.
- * In the normalized dataset, all objectives run from 0-1, with 1 being the best 
- * Binary Hypervolume indicator
- * Binary additive epsilon indicator
- * Unary hypervolume indicator
- * Unary epsilon indicator
- * 
- * 
- * */
-function getDatasetStats(){
-    var outstats = {};
-    var currIdeals = ideals["original"];
-    var currNadirs = nadirs["original"];
-    var currDataset = datasets;
-
-    // Compute average distance to ideal solution
-    outstats["distToIdeal"] = computeDistsToIdeal(currDataset,currIdeals);
-
-    // Compute unary epsilon indicator
-    outstats["unaryEpsilon"] = computeUnaryEpsilonIs(currDataset,currIdeals);
-
-    // Comptue Scott's spacing metric
-    outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
-
-    // Compute unary hypervolume indicator
-    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
+    outstats["binaryEpsilon"] = computeBinaryEpsilonIs(currDataset,currIdeals,currNadirs);
 
     return outstats;
 }
@@ -166,21 +140,11 @@ function computeHypervolumes(datasets,idealvecs,nadirvecs){
         var sos = Object.keys(idealvec).filter(function(a){return a !== po;});
         // clone data for local use:
         var ldat = JSON.parse(JSON.stringify(dataset));
-        // Translate objectives' scales (all max from 0->best)
-        for (obj in idealvec){
-            var newObjScale = d3.scaleLinear()
-                    .domain([nadirvec[obj],idealvec[obj]])
-                    .range([0,Math.abs(nadirvec[obj] - idealvec[obj])]);
-            ldat = ldat.map(function(row){
-                row[obj] = newObjScale(row[obj]);
-                return row;
-            })
-        }
         // sort descending by primary objective
         ldat = ldat.sort(function(a,b){
             return b[po] - a[po];
         });
-        // list of frontier points already accounted for (currently empty):
+        // list of frontier points already accounted for (initially empty):
         var completedFrontierPoints = [];
 
         /* Recursive Methods for Computation */
@@ -261,14 +225,11 @@ function computeHypervolumes(datasets,idealvecs,nadirvecs){
             }
         }
 
-        /* End of methods. Call to compute: */
+        /* End of method definitions. Call to compute: */
         hypervolume = getFrontierVolume(hypervolume,ldat,completedFrontierPoints);
-        console.log(hypervolume);
         return hypervolume;
     }
-
     return hypervols;
-
 }
 
 function computeSpacingMetric(datasets, idealvecs){
@@ -296,14 +257,12 @@ function computeSpacingMetric(datasets, idealvecs){
             dists.push(minDist);
         }
         // average dist between solutions:
-        var dbar = arraySum(dists)/dists.length;
-        // computing std deviation of pts on frontier
-        for (var i=0; i<dists.length;i++) dists[i] = Math.pow(dists[i]-dbar,2);
-        // compuing spacing
-        var spacing = Math.sqrt(arraySum(dists)/(dists.length-1));
+        var dbar = d3.sum(dists)/dists.length;
+        // computing spacing = std deviation of dist between pts on frontier
+        for (var i=0;i<dists.length;i++) dists[i] = Math.pow(dists[i]-dbar,2);
+        var spacing = Math.sqrt(d3.sum(dists)/(dists.length-1));
         return spacing;
     }
-
     return spacings;
 }
 
@@ -321,41 +280,30 @@ function computeUnaryEpsilonIs(datasets,ivecs){
         for (var row=0;row<dataset.length;row++){
             var maxCoveringDist = 0;
             for (col in ivec){
-                maxCoveringDist = Math.max(maxCoveringDist,Math.abs(ivec[col]-dataset[row][col]));
+                maxCoveringDist = Math.max(maxCoveringDist,ivec[col]-dataset[row][col]);
             }
             minTranslationToCover = Math.min(minTranslationToCover,maxCoveringDist);
         }
         eps = Math.max(eps,minTranslationToCover);
         return eps;
     }
-
     return unaryEpsIs;
 }
 
-function computeBinaryEpsilonIs(datasets,ivecs){
+function computeBinaryEpsilonIs(datasets,ivecs,nadirs){
 
     var binaryEpsIs = {};
 
     var frontierCombos = k_combinations(Object.keys(datasets),2);
-
-    for (var i=0;i<frontierCombos;i++){
-        var f1 = frontierCombos[i][0];
-        var f2 = frontierCombos[i][1];
-        var d1 = THEDATASETALLMAXED;
-        var d2 = THEDATASETALLMAXED;
-        var combonm = f1+"_"+f2;
-        // This should work if all objs are set to Max. Look at the use of the scale from the hypervolume indicator
-        binaryEpsIs[combonm] = computeBinaryEps(d1,d2,ivecs[f1]);
-    }
 
     function computeBinaryEps(dataset1,dataset2,ivec){
         var eps = -Infinity;
         for (var row2=0;row2<dataset2.length;row2++){
             var minTranslationToCover = Infinity;
             for (var row1=0;row1<dataset1.length;row1++){
-                var maxCoveringDist = 0;
+                var maxCoveringDist = -Infinity;
                 for (col in ivec){
-                    maxCoveringDist = Math.max(maxCoveringDist,Math.abs(dataset2[row2][col]-dataset1[row1][col]));
+                    maxCoveringDist = Math.max(maxCoveringDist,dataset2[row2][col]-dataset1[row1][col]);
                 }
                 minTranslationToCover = Math.min(minTranslationToCover,maxCoveringDist);
             }
@@ -364,6 +312,15 @@ function computeBinaryEpsilonIs(datasets,ivecs){
         return eps;
     }
 
+    for (var i=0;i<frontierCombos.length;i++){
+        var f1 = frontierCombos[i][0];
+        var f2 = frontierCombos[i][1];
+        var c1 = f1+"_"+f2;
+        var c2 = f2+"_"+f1;
+        binaryEpsIs[c1] = computeBinaryEps(datasets[f1],datasets[f2],ivecs[f1]);
+        binaryEpsIs[c2] = computeBinaryEps(datasets[f2],datasets[f1],ivecs[f1]);
+    }
+    console.log(binaryEpsIs);
     return binaryEpsIs;
 }
 
@@ -385,9 +342,7 @@ function computeDistsToIdeal (datasets,ivecs){
             }
             return Math.sqrt(sumsqrs);
         });
-        var sum = 0;
-        for (var i = 0; i < dists.length; i++){ sum += dists[i]; }
-        return sum/dists.length;
+        return d3.sum(dists)/dists.length;
     }
 }
 
@@ -431,6 +386,7 @@ function getParameterByName(name) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+/** Converts all objectives within a frontier to be bounded between 0 (worst) and 1 (best) */
 function normalizeDatasets(){
     // clone the data
     var ndatasets = JSON.parse(JSON.stringify(datasets));
@@ -445,7 +401,7 @@ function normalizeDatasets(){
             } else { // min
                 bounds.push(d3.min(datasets[frontier],function(d){ return d[col]; }));
             }
-            // create scale to map data val to 0-1 range
+            // create scale to map data val to 0-1 range, with 1 being best
             var scale = d3.scaleLinear().domain(bounds);
             // map the data
             ndatasets[frontier] = ndatasets[frontier].map(function(row){
@@ -458,6 +414,7 @@ function normalizeDatasets(){
     return ndatasets;
 }
 
+/** Sets all objective senses to max */
 function normalizeDataCols(){
     var ndatacols = JSON.parse(JSON.stringify(datacols));
 
@@ -481,14 +438,7 @@ function divideDataByFrontier(dataset, frontiers){
     return datasets;
 }
 
-function arraySum(anArray){
-    var sum = 0;
-    for (var i=0;i<anArray.length;i++){
-        sum += anArray[i];
-    }
-    return sum;
-}
-
+/** Given an array, returns all k-sized combinations of elements */
 function k_combinations(set, k) {
 	var i, j, combs, head, tailcombs;
 	
