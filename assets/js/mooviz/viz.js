@@ -540,40 +540,21 @@ function k_combinations(set, k) {
 	return combs;
 }
 
-function computePearsonCoefficient(x, y) {
-    var shortestArrayLength = 0;
-  
-    var xy = [];
-    var x2 = [];
-    var y2 = [];
-  
-    for(var i=0; i<shortestArrayLength; i++) {
-        xy.push(x[i] * y[i]);
-        x2.push(x[i] * x[i]);
-        y2.push(y[i] * y[i]);
-    }
-  
-    var sum_x = 0;
-    var sum_y = 0;
-    var sum_xy = 0;
-    var sum_x2 = 0;
-    var sum_y2 = 0;
-  
-    for(var i=0; i< shortestArrayLength; i++) {
-        sum_x += x[i];
-        sum_y += y[i];
-        sum_xy += xy[i];
-        sum_x2 += x2[i];
-        sum_y2 += y2[i];
-    }
-  
-    var step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
-    var step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
-    var step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
-    var step4 = Math.sqrt(step2 * step3);
-    var answer = step1 / step4;
-  
-    return answer;
+function computePearsonCoefficient(o1, o2) {
+    var num = covar(o1,o2);
+    var denom = d3.deviation(o1)*d3.deviation(o2);
+    return num/denom;
+
+    function covar(arr1, arr2) {
+        var u = d3.mean(arr1);
+        var v = d3.mean(arr2);
+        var arr1Len = arr1.length;
+        var sq_dev = new Array(arr1Len);
+        var i;
+        for (i = 0; i < arr1Len; i++)
+            sq_dev[i] = (arr1[i] - u) * (arr2[i] - v);
+        return d3.sum(sq_dev) / (arr1Len - 1);
+    };
 }
 
 /** Assumes all objectives are max and normalized */
