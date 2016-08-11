@@ -111,7 +111,7 @@ function getNormalizedDatasetStats(){
     outstats["spacing"] = computeSpacingMetric(currDataset,currIdeals);
 
     // Compute unary hypervolume indicator
-    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currIdeals);
+    outstats["hypervolume"] = computeHypervolumes(currDataset,currIdeals,currNadirs);
 
     return outstats;
 }
@@ -151,7 +151,7 @@ function computeHypervolumes(datasets,idealvecs,nadirvecs){
     var hypervols = {};
 
     for (f in datasets){
-        hypervols[f] = computeHypervolume(datasets[f], idealvecs[f]), nadirvecs[f];
+        hypervols[f] = computeHypervolume(datasets[f], idealvecs[f], nadirvecs[f]);
     }
 
     function computeHypervolume(dataset,idealvec,nadirvec){
@@ -203,7 +203,7 @@ function computeHypervolumes(datasets,idealvecs,nadirvecs){
                 currDimComponent = sideSols_dim[i][dim];
                 var dimDelta = currDimComponent - prevDimComponent;
                 var prodOfOtherDims = 1;
-                for (var d=0;d<otherSecondaryDims.length;d++) {prodOfOtherDims *= sideSols_dim[i][d];}
+                for (var d=0;d<otherSecondaryDims.length;d++) {prodOfOtherDims *= sideSols_dim[i][otherSecondaryDims[d]];}
                 sideVolInSubDim += dimDelta*prodOfOtherDims;
                 prevDimComponent = currDimComponent;
             }
@@ -213,7 +213,7 @@ function computeHypervolumes(datasets,idealvecs,nadirvecs){
         function getSubDimVolumeFromFrontierPoint(frontierPoint, completedFrontierPoints){
             // get the solution's sub-dimensional volume back to the origin
             var subDimContribution =  1;
-            for (var d=0;d<sos.length;d++) {subDimContribution *= frontierPoint[d];}
+            for (var d=0;d<sos.length;d++) {subDimContribution *= frontierPoint[sos[d]];}
             // subtract everything pre-existing away from its
             subDimContribution -= d3.sum(completedFrontierPoints,function(d){return d["SubDimContribution"]});
             // add back in the sides
