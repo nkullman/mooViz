@@ -154,21 +154,23 @@ function computeHypervolumes(datasets,idealvecs,unaryHypervols){
     function removeDominated(dataset,ivec){
         // clone data
         var result = JSON.parse(JSON.stringify(dataset));
-        // instantiate list of dominated indices
+        // instantiate list of dominated solution ids
         var domd = [];
         // number of objectives to check in dominance tests
         var numObj = Object.keys(ivec).length;
-        for (var i=0;i<dataset.length;i++){ // for each solution, check if there is another that is better than it
+        for (var i=0;i<dataset.length;i++){ // for each solution, check if there is another that dominates it
             var currSol = dataset[i];
             for (var j=0;j<dataset.length;j++){
                 if (i===j) continue;
                 var domingObjs = 0;
                 for (o in ivec){ if (dataset[j][o] >= dataset[i][o]) {domingObjs++;}}
-                if (domingObjs === numObj) {domd.push(i);}
+                if (domingObjs === numObj) {domd.push(dataset[i]["mvid"]);break;}
             }
         }
         // remove dominated solutions
-        for (var i=0;i<domd.length;i++){result.splice(domd[i],1);}
+        result = result.filter(function(row){
+            return domd.indexOf(row["mvid"])<0;
+        })
         return result;
     }
 
