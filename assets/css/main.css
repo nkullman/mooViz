@@ -2,6 +2,13 @@
  * Globals
  */
 
+ /* Modal content */
+ .modal-content{
+  color: #333;
+  text-shadow: none;
+  text-align: left;
+ }
+
 /* Links */
 a,
 a:focus,
