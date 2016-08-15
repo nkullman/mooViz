@@ -47,7 +47,7 @@
               <nav>
                 <ul class="nav masthead-nav">
                   <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#">Features</a></li>
+                  <li><a data-toggle="modal" href="#aboutModal">About</a></li>
                   <li><a data-toggle="modal" href="#helpModal">Help</a></li>
                 </ul>
               </nav>
@@ -87,7 +87,7 @@
 
     </div>
 
-    <!-- Modal -->
+    <!-- Help Modal -->
     <div id="helpModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
@@ -104,8 +104,9 @@
               The second column should have the header "Frontier" and should identify which frontier the solution belongs to.
               All solutions within a frontier should have the same value in the "Frontier" column.
               (If you only have one frontier, that's perfectly fine.)</p>
-              <p>Also note that your uploaded data should be a CSV.</p>
-              <table class="table table-sm">
+            <p>Additional columns are assumed to be solution data, with each column representing an objective.</p>
+            <p>Also note that your uploaded data should be a CSV.</p>
+            <table class="table table-sm">
               <thead>
                 <tr>
                   <th>SolutionIndex</th>
@@ -139,6 +140,33 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">MOO Viz: Multi-objective optimization visualization</h3>
+          </div>
+          <div class="modal-body">
+            <p><b>MOO Viz</b> exists to help visualize and understand Pareto-optimal point sets, specifically, those produced by the solutions of multi-objective math programming models.</p>
+            <p>
+              To compare these point sets (<i>frontiers</i>) MOO Viz can produce a handful of visualization aids, from simple tables to scatterplots to parallel coordinate plots.
+              MOO Viz also computes metrics that describe the competition between frontiers in a dataset and between objectives within a frontier.
+              The metrics include correlation coefficients, the hypervolume indicator and other measures commonly used in evolutionary multi-objective optimization. 
+            </p>
+            <p>Choose one of our pre-loaded datasets to see MOO Viz in action.</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
