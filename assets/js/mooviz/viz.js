@@ -113,7 +113,7 @@ function makeInterFrontierMeasuresTable(tc) {
         .data(function(row){
             var fs = row.split("_",2);
             return columns.slice(0,2).map(function(column){
-                if (column.charAt(column.length-1) === "1") {console.log("hi!");return {column:column,value:fs[0]};}
+                if (column.charAt(column.length-1) === "1") {return {column:column,value:fs[0]};}
                 else {return {column:column,value:fs[1]}};
             });
         })
@@ -123,9 +123,7 @@ function makeInterFrontierMeasuresTable(tc) {
     // fill data cells
     var cells = rows.selectAll("td")
         .data(function(row){
-            console.log(row);
             return columns.slice(2).map(function(column){
-                console.log(column);
                 return {column:column,value:datastats["interfrontier"][column][row]};
             });
         })
@@ -135,8 +133,46 @@ function makeInterFrontierMeasuresTable(tc) {
 }
 
 function makeIntraFrontierMeasuresTable(tc,f) {
-    var table = tc.append("table");
-    //table.append...
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = ["Objective 1","Objective 2","2D-Hypervolume","PearsonCorrelation"];
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(Object.keys(datastats["intrafrontier"][f] ))
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            var os = row.split("_",2);
+            return columns.slice(0,2).map(function(column){
+                if (column.charAt(column.length-1) === "1") {return {column:column,value:os[0]};}
+                else {return {column:column,value:os[1]}};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(2).map(function(column){
+                return {column:column,value:datastats["intrafrontier"][f][row][column]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
 }
 
 
