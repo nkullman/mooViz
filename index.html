@@ -101,7 +101,8 @@
             <p>First time using MOO Viz? Try selecting one of the pre-loaded datasets using the dropdown menu.</p>
             <p>Issues getting your data file to work? Checkout the table snippet below for how your columns should be setup.
               Namely, the first column header should be "SolutionIndex" and contain integers that identify a solution within its frontier.
-              The second column should have the header "Frontier" and should identify which frontier the solution belongs to.
+              The second column should have the header "Frontier" and should identify which frontier the solution belongs to
+              (entries in this column should avoid using the underscore character "_").
               All solutions within a frontier should have the same value in the "Frontier" column.
               (If you only have one frontier, that's perfectly fine.)</p>
             <p>Additional columns are assumed to be solution data, with each column representing an objective.</p>

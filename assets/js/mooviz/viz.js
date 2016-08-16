@@ -90,12 +90,11 @@ function makeFrontierMeasuresTable(tc) {
 }
 
 function makeInterFrontierMeasuresTable(tc) {
-    // THIS WAS JUST COPIED FROM PREVIOUS METHOD. UPDATE
     var table = tc.append("table").attr("class","table");
     var thead = table.append("thead");
     var tbody = table.append("tbody");
 
-    var columns = ["Frontier","Hypervolume","Epsilon","Distance","Spacing"];
+    var columns = ["Frontier 1","Frontier 2","BinaryHypervolume","BinaryEpsilon"];
 
     // append the header row
     thead.append("tr")
@@ -106,14 +105,16 @@ function makeInterFrontierMeasuresTable(tc) {
             .text(function(column) { return column; });
     // append data rows
     var rows = tbody.selectAll("tr")
-        .data(frontiers)
+        .data(Object.keys(datastats["interfrontier"][columns[2]]))
         .enter()
         .append("tr");
     // fill row header cells
     rows.selectAll("th")
         .data(function(row){
-            return columns.slice(0,1).map(function(column){
-                return {column:column,value:row};
+            var fs = row.split("_",2);
+            return columns.slice(0,2).map(function(column){
+                if (column.charAt(column.length-1) === "1") {console.log("hi!");return {column:column,value:fs[0]};}
+                else {return {column:column,value:fs[1]}};
             });
         })
         .enter()
@@ -122,8 +123,10 @@ function makeInterFrontierMeasuresTable(tc) {
     // fill data cells
     var cells = rows.selectAll("td")
         .data(function(row){
-            return columns.slice(1).map(function(column){
-                return {column:column,value:datastats["frontier"][column][row]};
+            console.log(row);
+            return columns.slice(2).map(function(column){
+                console.log(column);
+                return {column:column,value:datastats["interfrontier"][column][row]};
             });
         })
         .enter()
@@ -264,8 +267,8 @@ function computeIntrafrontierStats(dataset,ivec){
             .sort(function(a,b){ return b[n1] - a[n1];});
         var o1nd = ldat.map(function(row){return row[n1]});
         var o2nd = ldat.map(function(row){return row[n2]});
-        result[combonm]["PearsonCoefficient"] = computePearsonCoefficient(o1,o2);
-        result[combonm]["2DHypervol"] = compute2DHypervol(o1nd,o2nd);
+        result[combonm]["PearsonCorrelation"] = computePearsonCoefficient(o1,o2);
+        result[combonm]["2D-Hypervolume"] = compute2DHypervol(o1nd,o2nd);
     }
     function compute2DHypervol(a1,a2){
         var area = a1[0]*a2[0];
