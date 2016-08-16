@@ -23,12 +23,45 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 // Compute frontier statistics
 var datastats = getNormalizedDatasetStats();
 
+// Fill in data tables
+//  First, frontier measures
+var tc = d3.select("#table-container");
+tc.append("h2")
+    .text("Frontier Measures");
+makeFrontierMeasuresTable(tc);
+//  Second, comparing frontiers measures
+if (frontiers.length>1){
+    tc.append("h2")
+        .text("Compare Conflict Between Frontiers");
+    makeInterFrontierMeasuresTable(tc);
+}
+//  Last, objective measures
+tc.append("h2")
+    .text("Conflict Within Frontier");
+for (var i=0;i<frontiers.length;i++){
+    var frontier = frontiers[i];
+    tc.append("h2")
+        .text(frontier)
+    makeIntraFrontierMeasuresTable(tc,frontir);
+}
 
 
 
+/** Makes table for the measures for a given frontier */
+function makeFrontierMeasuresTable(tc) {
+    var table = tc.append("table");
+    //table.append...
+}
 
+function makeInterFrontierMeasuresTable(tc) {
+    var table = tc.append("table");
+    //table.append...
+}
 
-
+function makeIntraFrontierMeasuresTable(tc,f) {
+    var table = tc.append("table");
+    //table.append...
+}
 
 
 
