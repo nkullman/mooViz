@@ -40,22 +40,95 @@ tc.append("h2")
     .text("Conflict Within Frontier");
 for (var i=0;i<frontiers.length;i++){
     var frontier = frontiers[i];
-    tc.append("h2")
+    tc.append("h3")
         .text(frontier)
-    makeIntraFrontierMeasuresTable(tc,frontir);
+    makeIntraFrontierMeasuresTable(tc,frontier);
 }
 
 
 
 /** Makes table for the measures for a given frontier */
 function makeFrontierMeasuresTable(tc) {
-    var table = tc.append("table");
-    //table.append...
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = ["Frontier","Hypervolume","Epsilon","Distance","Spacing"];
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(frontiers)
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            return columns.slice(0,1).map(function(column){
+                return {column:column,value:row};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(1).map(function(column){
+                return {column:column,value:datastats["frontier"][column][row]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
 }
 
 function makeInterFrontierMeasuresTable(tc) {
-    var table = tc.append("table");
-    //table.append...
+    // THIS WAS JUST COPIED FROM PREVIOUS METHOD. UPDATE
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = ["Frontier","Hypervolume","Epsilon","Distance","Spacing"];
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(frontiers)
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            return columns.slice(0,1).map(function(column){
+                return {column:column,value:row};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(1).map(function(column){
+                return {column:column,value:datastats["frontier"][column][row]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
 }
 
 function makeIntraFrontierMeasuresTable(tc,f) {
@@ -141,7 +214,7 @@ function getNormalizedDatasetStats(){
 
 
     // Compute average distance to ideal solution
-    outstats["frontier"]["DistToIdeal"] = computeDistsToIdeal(currDataset,currIdeals);
+    outstats["frontier"]["Distance"] = computeDistsToIdeal(currDataset,currIdeals);
 
     // Compute unary epsilon indicator
     outstats["frontier"]["Epsilon"] = computeUnaryEpsilonIs(currDataset,currIdeals);
@@ -157,7 +230,7 @@ function getNormalizedDatasetStats(){
 
     // Compute binary hypervolume indicator
     // This relies on output from the unary hypervolume computation, so it must be computed afterwards 
-    outstats["interfrontier"]["BinaryHypervolume"] = computeHypervolumes(currDataset,currIdeals,outstats["hypervolume"]);
+    outstats["interfrontier"]["BinaryHypervolume"] = computeHypervolumes(currDataset,currIdeals,outstats["frontier"]["Hypervolume"]);
 
     // Compute intra-frontier statistics
     for (f in currDataset){
