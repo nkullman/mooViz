@@ -31,7 +31,8 @@ for (var i=0;i<dataCookies.length;i++) {
 var dcCookie = document.cookie.split("; ").filter(function(s){
             return s.slice(0,s.indexOf("=")) === "MOOVizDatacols";
 })[0];
-document.cookie = dcCookie.slice(0,dcCookie.indexOf("="))+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+if (typeof dcCookie != 'undefined')
+    document.cookie = dcCookie.slice(0,dcCookie.indexOf("="))+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
 
 
 /** Groom data and launch to viz page */
@@ -39,7 +40,7 @@ function prepAndLaunch(dat,optFilename) {
     if (typeof optFilename === 'undefined') { optFilename = 'custom'; }
 
     var data = d3.csvParse(dat);
-    
+
     var colsinfo = getColsInfo(data,optFilename);
 
     data = groomdata(data,colsinfo);
@@ -48,6 +49,7 @@ function prepAndLaunch(dat,optFilename) {
     // specify an expiration time for the cookie (5 minutes),
     // then add to cookies
     var dataStringArray1000 = JSON.stringify(data).match(/.{1,1000}/g);
+    console.log(dataStringArray1000.length);
     for (var i=0;i<dataStringArray1000.length;i++){
         document.cookie = "MOOVizData"+i+"="+dataStringArray1000[i];
     }
