@@ -20,28 +20,33 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 var datastats = getNormalizedDatasetStats();
 
 // Fill in data tables
-//  First, frontier measures
-var tc = d3.select("#table-container");
-tc.append("h2")
-    .text("Frontier Measures");
-makeFrontierMeasuresTable(tc);
-//  Second, comparing frontiers measures
-if (frontiers.length>1){
+makeDataTables("#table-container");
+
+
+
+/** Constructs the conflict metrics tables in the div with the passed selector */
+function makeDataTables(tableContainerSelector){
+    //  First, frontier measures
+    var tc = d3.select(tableContainerSelector);
     tc.append("h2")
-        .text("Compare Conflict Between Frontiers");
-    makeInterFrontierMeasuresTable(tc);
+        .text("Frontier Measures");
+    makeFrontierMeasuresTable(tc);
+    //  Second, comparing frontiers measures
+    if (frontiers.length>1){
+        tc.append("h2")
+            .text("Compare Conflict Between Frontiers");
+        makeInterFrontierMeasuresTable(tc);
+    }
+    //  Last, objective measures
+    tc.append("h2")
+        .text("Conflict Within Frontier");
+    for (var i=0;i<frontiers.length;i++){
+        var frontier = frontiers[i];
+        tc.append("h3")
+            .text(frontier)
+        makeIntraFrontierMeasuresTable(tc,frontier);
+    }
 }
-//  Last, objective measures
-tc.append("h2")
-    .text("Conflict Within Frontier");
-for (var i=0;i<frontiers.length;i++){
-    var frontier = frontiers[i];
-    tc.append("h3")
-        .text(frontier)
-    makeIntraFrontierMeasuresTable(tc,frontier);
-}
-
-
 
 /** Makes table for the measures for a given frontier */
 function makeFrontierMeasuresTable(tc) {
