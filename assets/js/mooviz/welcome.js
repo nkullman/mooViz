@@ -55,7 +55,7 @@ function prepAndLaunch(dat,optFilename) {
     document.cookie = "MOOVizDatacols="+JSON.stringify(colsinfo["datacols"]);
     
     // launch viz page with data stored in cookies
-    window.location.href = window.location.href+"viz/";
+    window.location.href = window.location.href+"explorer/";
 
 }
 

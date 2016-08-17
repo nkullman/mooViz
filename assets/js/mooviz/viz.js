@@ -579,7 +579,7 @@ function getInitialData(){
         }).join("");
         return JSON.parse(dataString);
     } catch(e) {
-        window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/viz"));
+        window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }
 }
 
@@ -593,7 +593,7 @@ function getDataColsData(){
         })[0];
         return JSON.parse(dc);
     } catch(e) {
-       window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/viz"));
+       window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }
 }
 
