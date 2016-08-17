@@ -4,10 +4,6 @@ var frontiers = getFrontiers(data);
 var datasets = divideDataByFrontier(data, frontiers);
 var datacols = getDataColsData();
 
-// Simplify URL, scraping away URI components
-var baseURL = window.location.href.slice(0,window.location.href.indexOf("?"));
-window.history.replaceState("newstate","MOO Viz",baseURL);
-
 // Create normalized versions of the datasets
 var ndatasets = normalizeDatasets();
 var ndatacols = normalizeDataCols();
