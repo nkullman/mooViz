@@ -1,3 +1,6 @@
+var data;
+var objectives;
+var datacols={};
 
 /* Handling the selection of a dataset from the welcome page */
 // User-uploaded
@@ -5,7 +8,12 @@ d3.select("#datasetinput").on("change", function(){
   if (window.File && window.FileReader && window.FileList && window.Blob) {
     var filereader = new window.FileReader();
     filereader.onload = function(){
-        prepAndLaunch(filereader.result);
+        prep(filereader.result);
+        setDefaultObjsSensesForCustomData();
+        $('#objsModal').modal('toggle');
+        $('#objsModal').on('hidden.bs.modal', function () {
+            launch();
+        });
     }
     filereader.readAsText(this.files[0]);
   } else { console.log("Error with file upload. Please try again."); }
@@ -15,43 +23,26 @@ d3.selectAll(".datasetoption").on("click", function(){
     var selectedID = this.id;
     var filename = "datasets/"+selectedID+".csv"
     d3.text(filename, function(datasetAsText){
-        prepAndLaunch(datasetAsText,selectedID);
+        prep(datasetAsText,selectedID);
+        launch();
     });
 });
 
-// delete pre-existing datacookies
-var dataCookies = document.cookie.split("; ").filter(function(s){
-            return s.slice(0,s.indexOf("=")).match(/\b(MOOVizData)[0-9]+\b/g) !== null;
-});
-for (var i=0;i<dataCookies.length;i++) {
-    var cname = dataCookies[i].slice(0,dataCookies[i].indexOf("="));
-    document.cookie = cname+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-}
-// delete pre-existing datacols cookies
-var dcCookie = document.cookie.split("; ").filter(function(s){
-            return s.slice(0,s.indexOf("=")) === "MOOVizDatacols";
-})[0];
-if (typeof dcCookie != 'undefined')
-    document.cookie = dcCookie.slice(0,dcCookie.indexOf("="))+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
 
-
-/** Groom data and launch to viz page */
-function prepAndLaunch(dat,optFilename) {
+/** Groom data */
+function prep(dat,optFilename) {
     if (typeof optFilename === 'undefined') { optFilename = 'custom'; }
 
-    var data = d3.csvParse(dat);
+    data = d3.csvParse(dat);
 
-    var colsinfo = getColsInfo(data,optFilename);
+    objectives = data["columns"].splice(2);
 
-    data = groomdata(data,colsinfo);
+    data = groomdata(data,objectives);
 
-    // Store data objects in local storage
-    localStorage.setItem('MOOVizData', JSON.stringify(data));
-    localStorage.setItem('MOOVizDatacols', JSON.stringify(colsinfo["datacols"]));
-    
-    // launch viz page with data stored in cookies
-    window.location.href = window.location.href+"explorer/";
-
+    // get the objectives' senses for pre-loaded datasets
+    if (optFilename !== "custom"){
+        datacols = setObjsSensesForPreloadedData(optFilename);
+    }
 }
 
 /**
@@ -64,35 +55,87 @@ function prepAndLaunch(dat,optFilename) {
  * All objectives assumed to be max for custom datasets.
  * Preloaded datasets are fixed as appropriate.
  */
-function getColsInfo(dataset, filename){
-    var colsinfo = {};
+function setObjsSensesForPreloadedData(filename){
+    var objsSenses = {};
 
-    colsinfo["idcols"] = dataset.columns.slice(0,2);
-    colsinfo["datacols"] = {};
-
-    /* objectives set to 0 for min, 1 for max */
-    var datacolnames = dataset.columns.slice(2);
-    for (var i = 0; i < datacolnames.length; i++){
-        colsinfo["datacols"][datacolnames[i]] = 1;
+    /*
+    Objectives set to 0 for min, 1 for max
+    Default: all max
+    */
+    for (var i = 0; i < objectives.length; i++){
+        objsSenses[objectives[i]] = 1;
     }
-    /* Fixes for preloaded datasets */
+    /*
+    Adjustments for preloaded datasets.
+    This loop should be modified when more datasets added
+    */
     if (filename === "deschutesdata"){
-        colsinfo["datacols"]["FireHazard"] = 0;
-        colsinfo["datacols"]["MaxSediment"] = 0;
-    }
+        objsSenses[objectives[0]] = 0;
+        objsSenses[objectives[2]] = 0;
 
-    return colsinfo;
+        return objsSenses;
+    } else { // (filename === "chiledata" || filename === "packforestdata")
+
+        // These files have all objs max, so no changes req'd
+        return objsSenses;
+    }
+}
+
+function setDefaultObjsSensesForCustomData(){
+    /*
+    Objectives set to 0 for min, 1 for max
+    Default: all max
+    */
+    var tbID = "#senseSetModalTableBody"
+    for (var i = 0; i < objectives.length; i++){
+        datacols[objectives[i]] = 1;
+        appendSenseSelectorToTable(tbID,i,objectives[i]);
+    }
+    
+}
+
+/** Save data and datacols to local storage and launch to explorer page */
+function launch(){
+    // Store data objects in local storage
+    localStorage.setItem('MOOVizData', JSON.stringify(data));
+    localStorage.setItem('MOOVizDatacols', JSON.stringify(datacols));
+    
+    // launch viz page with data in local storage
+    window.location.href = window.location.href+"explorer/";
+}
+
+/**
+ * Appends a radio button to select the sense for an objective
+ * to the DOM element name passed in the arg
+ * 
+ */
+function appendSenseSelectorToTable(tbodyID,objIdx,objName){
+    var trow = d3.select(tbodyID).append("tr");
+    trow.append("th").text(objName+": ");
+    trow.append("td")
+        .attr("class","text-left")
+        .append("input")
+            .attr("id","sense-toggle-"+objIdx)
+            .attr("type","checkbox")
+            .attr("data-toggle","toggle")
+            .attr("data-on","Max")
+            .attr("data-off","Min")
+            .property("checked",true);
+
+    $(function(){$("#sense-toggle-"+objIdx).bootstrapToggle();});
+    $(function(){$("#sense-toggle-"+objIdx)
+        .change(function(){
+            datacols[objName] === 1 ? datacols[objName] = 0 : datacols[objName] = 1;
+        });
+    });
 }
 
 /** Groom dataset */
-function groomdata(dataset,colsinfo){
-    var idcols = colsinfo["idcols"],
-        datacols = Object.keys(colsinfo["datacols"]);
-    
+function groomdata(dataset,objs){    
     return dataset.map(function(row){
-        row["mvid"] = row[idcols[0]]+"-"+row[idcols[1]];
-        for (idx in datacols){
-            row[datacols[idx]] = +row[datacols[idx]];
+        row["mvid"] = row["Frontier"]+"-"+row["SolutionIndex"];
+        for (idx in objs){
+            row[objs[idx]] = +row[objs[idx]];
         }
         return row;
     });
