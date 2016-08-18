@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Explore solution sets to multi-objective optimization problems.">
+    <meta name="author" content="Nicholas Kullman">
+    <link rel="icon" href="./assets/favicon.ico">
+
+    <title>MOO Viz | Explorer</title>
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <!-- Latest compiled and minified BootStrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional BootStrap theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified BootStrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- For Bootstrap toggle switches -->
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.js"></script>
+    
+    <!-- Custom styles for this page -->
+    <link href="../assets/css/viz.css" rel="stylesheet">
+    
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">MOO Viz</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a>Explorer</a></li>
+            <li><a data-toggle="modal" href="#aboutModal">About</a></li>
+            <li><a data-toggle="modal" href="#helpModal">Help</a></li>
+            <li><a data-toggle="modal" href="#contactModal">Contact</a></li>
+            <!--<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <label>
+                    <input type="checkbox" data-toggle="toggle">
+                    Second display
+                  </label>
+                </li>
+                <li>
+                  <label>
+                    <input type="checkbox" data-toggle="toggle">
+                    Normalize dataset
+                  </label>
+                </li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+            <li><a href="#mapping">Mapping</a></li>
+          </ul>-->
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container theme-showcase" role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <h1>Dataset Title</h1>
+        <p>This is a placeholder for some header content that would be useful to see here.</p>
+      </div>
+
+      <div class="page-header">
+        <h1>Conflict metrics</h1>
+      </div>
+
+      <div id="table-container">
+      </div>
+
+    </div>
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">MOO Viz: Multi-objective optimization visualization</h3>
+          </div>
+          <div class="modal-body">
+            <p><b>MOO Viz</b> exists to help visualize and understand Pareto-optimal point sets, specifically, those produced by the solutions of multi-objective math programming models.</p>
+            <p>
+              To compare these point sets (<i>frontiers</i>) MOO Viz can produce a handful of visualization aids, from simple tables to scatterplots to parallel coordinate plots.
+              MOO Viz also computes metrics that describe the competition between frontiers in a dataset and between objectives within a frontier.
+              The metrics include correlation coefficients, the hypervolume indicator and other measures commonly used in evolutionary multi-objective optimization. 
+            </p>
+            <p>For more views, try switching between viz aids in the <i>Settings</i> panel.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">Help</h3>
+          </div>
+          <div class="modal-body">
+            <p>Helpful content will go here...</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">Contact</h3>
+          </div>
+          <div class="modal-body">
+            <p>Contact info for the project will go here...</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- custom scripts -->
+    <script src="../assets/js/mooviz/viz.js"></script>
+  </body>
+</html>

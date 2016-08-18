@@ -4,10 +4,6 @@ var frontiers = getFrontiers(data);
 var datasets = divideDataByFrontier(data, frontiers);
 var datacols = getDataColsData();
 
-// Simplify URL, scraping away URI components
-var baseURL = window.location.href.slice(0,window.location.href.indexOf("?"));
-window.history.replaceState("newstate","MOO Viz",baseURL);
-
 // Create normalized versions of the datasets
 var ndatasets = normalizeDatasets();
 var ndatacols = normalizeDataCols();
@@ -23,12 +19,162 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 // Compute frontier statistics
 var datastats = getNormalizedDatasetStats();
 
+// Fill in data tables
+makeDataTables("#table-container");
 
 
 
+/** Constructs the conflict metrics tables in the div with the passed selector */
+function makeDataTables(tableContainerSelector){
+    //  First, frontier measures
+    var tc = d3.select(tableContainerSelector);
+    tc.append("h2")
+        .text("Frontier Measures");
+    makeFrontierMeasuresTable(tc);
+    //  Second, comparing frontiers measures
+    if (frontiers.length>1){
+        tc.append("h2")
+            .text("Compare Conflict Between Frontiers");
+        makeInterFrontierMeasuresTable(tc);
+    }
+    //  Last, objective measures
+    tc.append("h2")
+        .text("Conflict Within Frontier");
+    for (var i=0;i<frontiers.length;i++){
+        var frontier = frontiers[i];
+        tc.append("h3")
+            .text(frontier)
+        makeIntraFrontierMeasuresTable(tc,frontier);
+    }
+}
 
+/** Makes table for the measures for a given frontier */
+function makeFrontierMeasuresTable(tc) {
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
 
+    var columns = ["Frontier","Hypervolume","Epsilon","Distance","Spacing"];
 
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(frontiers)
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            return columns.slice(0,1).map(function(column){
+                return {column:column,value:row};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(1).map(function(column){
+                return {column:column,value:datastats["frontier"][column][row]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
+}
+
+function makeInterFrontierMeasuresTable(tc) {
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = ["Frontier 1","Frontier 2","BinaryHypervolume","BinaryEpsilon"];
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(Object.keys(datastats["interfrontier"][columns[2]]))
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            var fs = row.split("_",2);
+            return columns.slice(0,2).map(function(column){
+                if (column.charAt(column.length-1) === "1") {return {column:column,value:fs[0]};}
+                else {return {column:column,value:fs[1]}};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(2).map(function(column){
+                return {column:column,value:datastats["interfrontier"][column][row]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
+}
+
+function makeIntraFrontierMeasuresTable(tc,f) {
+    var table = tc.append("table").attr("class","table");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = ["Objective 1","Objective 2","2D-Hypervolume","PearsonCorrelation"];
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(Object.keys(datastats["intrafrontier"][f] ))
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            var os = row.split("_",2);
+            return columns.slice(0,2).map(function(column){
+                if (column.charAt(column.length-1) === "1") {return {column:column,value:os[0]};}
+                else {return {column:column,value:os[1]}};
+            });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            return columns.slice(2).map(function(column){
+                return {column:column,value:datastats["intrafrontier"][f][row][column]};
+            });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
+}
 
 
 
@@ -108,7 +254,7 @@ function getNormalizedDatasetStats(){
 
 
     // Compute average distance to ideal solution
-    outstats["frontier"]["DistToIdeal"] = computeDistsToIdeal(currDataset,currIdeals);
+    outstats["frontier"]["Distance"] = computeDistsToIdeal(currDataset,currIdeals);
 
     // Compute unary epsilon indicator
     outstats["frontier"]["Epsilon"] = computeUnaryEpsilonIs(currDataset,currIdeals);
@@ -124,7 +270,7 @@ function getNormalizedDatasetStats(){
 
     // Compute binary hypervolume indicator
     // This relies on output from the unary hypervolume computation, so it must be computed afterwards 
-    outstats["interfrontier"]["BinaryHypervolume"] = computeHypervolumes(currDataset,currIdeals,outstats["hypervolume"]);
+    outstats["interfrontier"]["BinaryHypervolume"] = computeHypervolumes(currDataset,currIdeals,outstats["frontier"]["Hypervolume"]);
 
     // Compute intra-frontier statistics
     for (f in currDataset){
@@ -158,8 +304,8 @@ function computeIntrafrontierStats(dataset,ivec){
             .sort(function(a,b){ return b[n1] - a[n1];});
         var o1nd = ldat.map(function(row){return row[n1]});
         var o2nd = ldat.map(function(row){return row[n2]});
-        result[combonm]["PearsonCoefficient"] = computePearsonCoefficient(o1,o2);
-        result[combonm]["2DHypervol"] = compute2DHypervol(o1nd,o2nd);
+        result[combonm]["PearsonCorrelation"] = computePearsonCoefficient(o1,o2);
+        result[combonm]["2D-Hypervolume"] = compute2DHypervol(o1nd,o2nd);
     }
     function compute2DHypervol(a1,a2){
         var area = a1[0]*a2[0];
@@ -423,21 +569,21 @@ function getFrontiers(dataset){
     return frontiers;
 }
 
-/** Get data from the URI. If no or bad data passed, divert user to welcome page */
+/** Get data from the cookies. If no or bad data passed, divert user to welcome page */
 function getInitialData(){
     try {
-        return JSON.parse(getParameterByName("data"));
+        return JSON.parse(localStorage.getItem("MOOVizData"));
     } catch(e) {
-        window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/viz"));
+        window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }
 }
 
 /** Get information on the data columns from the URI. */
 function getDataColsData(){
     try {
-        return JSON.parse(getParameterByName("datacols"));
+        return JSON.parse(localStorage.getItem("MOOVizDatacols"));
     } catch(e) {
-       window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/viz"));
+       window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }
 }
 

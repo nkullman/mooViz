@@ -19,24 +19,38 @@ d3.selectAll(".datasetoption").on("click", function(){
     });
 });
 
+// delete pre-existing datacookies
+var dataCookies = document.cookie.split("; ").filter(function(s){
+            return s.slice(0,s.indexOf("=")).match(/\b(MOOVizData)[0-9]+\b/g) !== null;
+});
+for (var i=0;i<dataCookies.length;i++) {
+    var cname = dataCookies[i].slice(0,dataCookies[i].indexOf("="));
+    document.cookie = cname+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+}
+// delete pre-existing datacols cookies
+var dcCookie = document.cookie.split("; ").filter(function(s){
+            return s.slice(0,s.indexOf("=")) === "MOOVizDatacols";
+})[0];
+if (typeof dcCookie != 'undefined')
+    document.cookie = dcCookie.slice(0,dcCookie.indexOf("="))+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
+
 /** Groom data and launch to viz page */
 function prepAndLaunch(dat,optFilename) {
     if (typeof optFilename === 'undefined') { optFilename = 'custom'; }
 
     var data = d3.csvParse(dat);
-    
+
     var colsinfo = getColsInfo(data,optFilename);
 
     data = groomdata(data,colsinfo);
 
-    // convert data object to URI-encodable JSON string
-    var uridataparam = encodeURIComponent(JSON.stringify(data));
-
-    // convert datacols object to URI-encodable JSON string
-    var uridatacolsparam = encodeURIComponent(JSON.stringify(colsinfo["datacols"]));
+    // Store data objects in local storage
+    localStorage.setItem('MOOVizData', JSON.stringify(data));
+    localStorage.setItem('MOOVizDatacols', JSON.stringify(colsinfo["datacols"]));
     
-    // launch viz page with encoded data
-    window.location.href = window.location.href+"viz?data="+uridataparam+"&datacols="+uridatacolsparam;
+    // launch viz page with data stored in cookies
+    window.location.href = window.location.href+"explorer/";
 
 }
 
