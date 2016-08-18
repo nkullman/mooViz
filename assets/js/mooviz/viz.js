@@ -572,12 +572,7 @@ function getFrontiers(dataset){
 /** Get data from the cookies. If no or bad data passed, divert user to welcome page */
 function getInitialData(){
     try {
-        var dataString = document.cookie.split("; ").filter(function(s){
-            return s.slice(0,s.indexOf("=")).match(/\b(MOOVizData)[0-9]+\b/g) !== null;
-        }).map(function(s){
-            return s.slice(s.indexOf("=")+1);
-        }).join("");
-        return JSON.parse(dataString);
+        return JSON.parse(localStorage.getItem("MOOVizData"));
     } catch(e) {
         window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }
@@ -586,12 +581,7 @@ function getInitialData(){
 /** Get information on the data columns from the URI. */
 function getDataColsData(){
     try {
-        var dc = document.cookie.split("; ").filter(function(s){
-            return s.slice(0,s.indexOf("=")) === "MOOVizDatacols";
-        }).map(function(s){
-            return s.slice(s.indexOf("=")+1);
-        })[0];
-        return JSON.parse(dc);
+        return JSON.parse(localStorage.getItem("MOOVizDatacols"));
     } catch(e) {
        window.location.href = window.location.href.slice(0,window.location.href.lastIndexOf("/explorer"));
     }

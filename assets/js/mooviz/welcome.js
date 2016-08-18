@@ -45,16 +45,9 @@ function prepAndLaunch(dat,optFilename) {
 
     data = groomdata(data,colsinfo);
 
-    // divide datastring into smaller, cookie-sized chunks,
-    // specify an expiration time for the cookie (5 minutes),
-    // then add to cookies
-    var dataStringArray1000 = JSON.stringify(data).match(/.{1,1000}/g);
-    console.log(dataStringArray1000.length);
-    for (var i=0;i<dataStringArray1000.length;i++){
-        document.cookie = "MOOVizData"+i+"="+dataStringArray1000[i];
-    }
-    // also add datacols to cookies
-    document.cookie = "MOOVizDatacols="+JSON.stringify(colsinfo["datacols"]);
+    // Store data objects in local storage
+    localStorage.setItem('MOOVizData', JSON.stringify(data));
+    localStorage.setItem('MOOVizDatacols', JSON.stringify(colsinfo["datacols"]));
     
     // launch viz page with data stored in cookies
     window.location.href = window.location.href+"explorer/";
