@@ -19,33 +19,177 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 // Compute frontier statistics
 var datastats = getNormalizedDatasetStats();
 
+// Populate datatable of all solutions
+makeSolutionDataTable("#datatable-container");
+configureAndActivateDataTable("#allSolsDatatable");
+
 // Fill in data tables
-makeDataTables("#table-container");
+makeConflictMetricTables("#conflictmetricstable-container");
 
 
+
+/** Configure and activate the datatable */
+function configureAndActivateDataTable(tableId){
+
+    var table = $(tableId).DataTable({
+        paging:false,
+        order: [[ 0, 'asc' ], [ 1, 'asc' ]]
+    });
+
+    $(tableId+' tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            $(this).addClass('selected');
+        }
+    } );
+}
+
+
+/** Constructs the datatable for all the solutions */
+function makeSolutionDataTable(dataTableLocSelector){
+    var table = d3.select(dataTableLocSelector).append("table")
+        .attr("class","table table-striped")
+        .attr("id","allSolsDatatable");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = Object.keys(datasets[frontiers[0]][0])
+        .filter(function(e){return e !== "mvid"});
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(data.map(function(d){return d.mvid;}))
+        .enter()
+        .append("tr")
+            .attr("id",function(d){return "datatable-row-"+d;});
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            var frontierAndSolID = [row.slice(0,row.lastIndexOf("-")),row.slice(row.lastIndexOf("-")+1)];
+            return columns.filter(function(e){return e === "Frontier" || e === "SolutionIndex"}).sort()
+                .map(function(column){
+                    if (column.charAt(0) === "F") {return {column:column,value:frontierAndSolID[0]};}
+                    else {return {column:column,value:frontierAndSolID[1]}};
+                });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            var frontierAndSolID = [row.slice(0,row.lastIndexOf("-")),row.slice(row.lastIndexOf("-")+1)];
+            return columns.filter(function(e){return e !== "Frontier" && e !== "SolutionIndex"})
+                .map(function(column){
+                    return {column:column,value:datasets[frontierAndSolID[0]]
+                        .filter(function(e){
+                            return e["mvid"] === row;
+                        })[0][column]};
+                });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
+}
 
 /** Constructs the conflict metrics tables in the div with the passed selector */
-function makeDataTables(tableContainerSelector){
+function makeConflictMetricTables(tableContainerSelector){
     //  First, frontier measures
     var tc = d3.select(tableContainerSelector);
-    tc.append("h2")
-        .text("Frontier Measures");
-    makeFrontierMeasuresTable(tc);
+    var fpanel = tc.append("div")
+        .attr("class","panel-group")
+        .append("div")
+            .attr("class","panel panel-default");
+    fpanel.append("div")
+        .attr("class","panel-heading")
+        .append("h2")
+            .attr("class","panel-title")
+            .append("a")
+                .attr("data-toggle","collapse")
+                .attr("href","#frontierMeasuresTable")
+                    .text("Frontier Measures");
+    var fpanelBody = fpanel.append("div")
+        .attr("class","panel-collapse collapse")
+        .attr("id","frontierMeasuresTable")
+        .append("div")
+            .attr("class","panel-body");
+
+    makeFrontierMeasuresTable(fpanelBody);
     //  Second, comparing frontiers measures
     if (frontiers.length>1){
-        tc.append("h2")
-            .text("Compare Conflict Between Frontiers");
-        makeInterFrontierMeasuresTable(tc);
+
+        var interfpanel = tc.append("div")
+        .attr("class","panel-group")
+            .append("div")
+                .attr("class","panel panel-default");
+        interfpanel.append("div")
+            .attr("class","panel-heading")
+            .append("h2")
+                .attr("class","panel-title")
+                .append("a")
+                    .attr("data-toggle","collapse")
+                    .attr("href","#interfrontierMeasuresTable")
+                        .text("Compare Conflict Between Frontiers");
+        var interfpanelBody = interfpanel.append("div")
+            .attr("class","panel-collapse collapse")
+            .attr("id","interfrontierMeasuresTable")
+            .append("div")
+                .attr("class","panel-body");
+
+        makeInterFrontierMeasuresTable(interfpanelBody);
     }
     //  Last, objective measures
-    tc.append("h2")
-        .text("Conflict Within Frontier");
+    var intrafouterpanel = tc.append("div")
+        .attr("class","panel-group")
+        .append("div")
+            .attr("class","panel panel-default");
+    intrafouterpanel.append("div")
+        .attr("class","panel-heading")
+        .append("h2")
+            .attr("class","panel-title")
+            .append("a")
+                .attr("data-toggle","collapse")
+                .attr("href","#intrafrontierMeasuresOuter")
+                    .text("Compare Conflict Within Frontier");
+    var intrafouterpanelBody = intrafouterpanel.append("div")
+        .attr("class","panel-collapse collapse")
+        .attr("id","intrafrontierMeasuresOuter")
+        .append("div")
+            .attr("class","panel-body");
+
     for (var i=0;i<frontiers.length;i++){
         var frontier = frontiers[i];
-        tc.append("h3")
-            .text(frontier)
-        makeIntraFrontierMeasuresTable(tc,frontier);
+
+        var intrafinnerpanel = intrafouterpanelBody.append("div")
+        .attr("class","panel-group")
+            .append("div")
+                .attr("class","panel panel-default");
+        intrafinnerpanel.append("div")
+            .attr("class","panel-heading")
+            .append("h3")
+                .attr("class","panel-title")
+                .append("a")
+                    .attr("data-toggle","collapse")
+                    .attr("href","#intrafrontierMeasuresTable-"+frontier)
+                        .text(frontier);
+        var intrafinnerpanelBody = intrafinnerpanel.append("div")
+            .attr("class","panel-collapse collapse")
+            .attr("id","intrafrontierMeasuresTable-"+frontier)
+            .append("div")
+                .attr("class","panel-body");
+
+        makeIntraFrontierMeasuresTable(intrafinnerpanelBody,frontier);
     }
+    $('.collapse').collapse();
 }
 
 /** Makes table for the measures for a given frontier */
