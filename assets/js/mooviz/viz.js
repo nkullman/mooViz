@@ -19,6 +19,8 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 // Compute frontier statistics
 var datastats = getNormalizedDatasetStats();
 
+// Populate datatable of all solutions
+
 // Fill in data tables
 makeDataTables("#table-container");
 
@@ -28,24 +30,91 @@ makeDataTables("#table-container");
 function makeDataTables(tableContainerSelector){
     //  First, frontier measures
     var tc = d3.select(tableContainerSelector);
-    tc.append("h2")
-        .text("Frontier Measures");
-    makeFrontierMeasuresTable(tc);
+    var fpanel = tc.append("div")
+        .attr("class","panel-group")
+        .append("div")
+            .attr("class","panel panel-default");
+    fpanel.append("div")
+        .attr("class","panel-heading")
+        .append("h2")
+            .attr("class","panel-title")
+            .append("a")
+                .attr("data-toggle","collapse")
+                .attr("href","#frontierMeasuresTable")
+                    .text("Frontier Measures");
+    var fpanelBody = fpanel.append("div")
+        .attr("class","panel-collapse collapse")
+        .attr("id","frontierMeasuresTable")
+        .append("div")
+            .attr("class","panel-body");
+
+    makeFrontierMeasuresTable(fpanelBody);
     //  Second, comparing frontiers measures
     if (frontiers.length>1){
-        tc.append("h2")
-            .text("Compare Conflict Between Frontiers");
-        makeInterFrontierMeasuresTable(tc);
+
+        var interfpanel = tc.append("div")
+        .attr("class","panel-group")
+            .append("div")
+                .attr("class","panel panel-default");
+        interfpanel.append("div")
+            .attr("class","panel-heading")
+            .append("h2")
+                .attr("class","panel-title")
+                .append("a")
+                    .attr("data-toggle","collapse")
+                    .attr("href","#interfrontierMeasuresTable")
+                        .text("Compare Conflict Between Frontiers");
+        var interfpanelBody = interfpanel.append("div")
+            .attr("class","panel-collapse collapse")
+            .attr("id","interfrontierMeasuresTable")
+            .append("div")
+                .attr("class","panel-body");
+
+        makeInterFrontierMeasuresTable(interfpanelBody);
     }
     //  Last, objective measures
-    tc.append("h2")
-        .text("Conflict Within Frontier");
+    var intrafouterpanel = tc.append("div")
+        .attr("class","panel-group")
+        .append("div")
+            .attr("class","panel panel-default");
+    intrafouterpanel.append("div")
+        .attr("class","panel-heading")
+        .append("h2")
+            .attr("class","panel-title")
+            .append("a")
+                .attr("data-toggle","collapse")
+                .attr("href","#intrafrontierMeasuresOuter")
+                    .text("Compare Conflict Within Frontier");
+    var intrafouterpanelBody = intrafouterpanel.append("div")
+        .attr("class","panel-collapse collapse")
+        .attr("id","intrafrontierMeasuresOuter")
+        .append("div")
+            .attr("class","panel-body");
+
     for (var i=0;i<frontiers.length;i++){
         var frontier = frontiers[i];
-        tc.append("h3")
-            .text(frontier)
-        makeIntraFrontierMeasuresTable(tc,frontier);
+
+        var intrafinnerpanel = intrafouterpanelBody.append("div")
+        .attr("class","panel-group")
+            .append("div")
+                .attr("class","panel panel-default");
+        intrafinnerpanel.append("div")
+            .attr("class","panel-heading")
+            .append("h3")
+                .attr("class","panel-title")
+                .append("a")
+                    .attr("data-toggle","collapse")
+                    .attr("href","#intrafrontierMeasuresTable-"+frontier)
+                        .text(frontier);
+        var intrafinnerpanelBody = intrafinnerpanel.append("div")
+            .attr("class","panel-collapse collapse")
+            .attr("id","intrafrontierMeasuresTable-"+frontier)
+            .append("div")
+                .attr("class","panel-body");
+
+        makeIntraFrontierMeasuresTable(intrafinnerpanelBody,frontier);
     }
+    $('.collapse').collapse();
 }
 
 /** Makes table for the measures for a given frontier */
