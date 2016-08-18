@@ -27,6 +27,10 @@
     <!-- Latest compiled and minified BootStrap JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
+    <!-- Bootstrap Toggle -->
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
     <!-- Custom styles for this page -->
     <link href="./assets/css/main.css" rel="stylesheet">
     
@@ -170,6 +174,28 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Obj Sense-setting Modal -->
+    <div id="objsModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">Set objectives' senses</h3>
+          </div>
+          <div id="senseSetModalDiv" class="modal-body">
+            <p>For each of the following detected objectives, please select a sense (max/min):</p>
+            <table class="table table-sm borderless table-striped" id="senseSelectionTable"><tbody id="senseSetModalTableBody"></tbody></table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
           </div>
         </div>
 
