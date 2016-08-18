@@ -20,14 +20,71 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 var datastats = getNormalizedDatasetStats();
 
 // Populate datatable of all solutions
+makeSolutionDataTables("#datatable-container");
+$("#datatable-container table").DataTable(
+    {paging:false}
+);
 
 // Fill in data tables
-makeDataTables("#table-container");
+makeConflictMetricTables("#conflictmetricstable-container");
 
 
+
+/** Constructs the datatable for all the solutions */
+function makeSolutionDataTables(dataTableLocSelector){
+    var table = d3.select(dataTableLocSelector).append("table")
+        .attr("class","table table-striped")
+        .attr("id","allSolsDatatable");
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    var columns = Object.keys(datasets[frontiers[0]][0])
+        .filter(function(e){return e !== "mvid"});
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+    // append data rows
+    var rows = tbody.selectAll("tr")
+        .data(data.map(function(d){return d.mvid;}))
+        .enter()
+        .append("tr");
+    // fill row header cells
+    rows.selectAll("th")
+        .data(function(row){
+            var frontierAndSolID = [row.slice(0,row.lastIndexOf("-")),row.slice(row.lastIndexOf("-")+1)];
+            return columns.filter(function(e){return e === "Frontier" || e === "SolutionIndex"}).sort()
+                .map(function(column){
+                    if (column.charAt(0) === "F") {return {column:column,value:frontierAndSolID[0]};}
+                    else {return {column:column,value:frontierAndSolID[1]}};
+                });
+        })
+        .enter()
+        .append("th")
+            .html(function(d){return d.value;});
+    // fill data cells
+    var cells = rows.selectAll("td")
+        .data(function(row){
+            var frontierAndSolID = [row.slice(0,row.lastIndexOf("-")),row.slice(row.lastIndexOf("-")+1)];
+            return columns.filter(function(e){return e !== "Frontier" && e !== "SolutionIndex"})
+                .map(function(column){
+                    return {column:column,value:datasets[frontierAndSolID[0]]
+                        .filter(function(e){
+                            return e["mvid"] === row;
+                        })[0][column]};
+                });
+        })
+        .enter()
+        .append("td")
+            .html(function(d){return d.value;});
+}
 
 /** Constructs the conflict metrics tables in the div with the passed selector */
-function makeDataTables(tableContainerSelector){
+function makeConflictMetricTables(tableContainerSelector){
     //  First, frontier measures
     var tc = d3.select(tableContainerSelector);
     var fpanel = tc.append("div")
