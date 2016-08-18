@@ -20,18 +20,35 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 var datastats = getNormalizedDatasetStats();
 
 // Populate datatable of all solutions
-makeSolutionDataTables("#datatable-container");
-$("#datatable-container table").DataTable(
-    {paging:false}
-);
+makeSolutionDataTable("#datatable-container");
+configureAndActivateDataTable("#allSolsDatatable");
 
 // Fill in data tables
 makeConflictMetricTables("#conflictmetricstable-container");
 
 
 
+/** Configure and activate the datatable */
+function configureAndActivateDataTable(tableId){
+
+    var table = $(tableId).DataTable({
+        paging:false,
+        order: [[ 0, 'asc' ], [ 1, 'asc' ]]
+    });
+
+    $(tableId+' tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            $(this).addClass('selected');
+        }
+    } );
+}
+
+
 /** Constructs the datatable for all the solutions */
-function makeSolutionDataTables(dataTableLocSelector){
+function makeSolutionDataTable(dataTableLocSelector){
     var table = d3.select(dataTableLocSelector).append("table")
         .attr("class","table table-striped")
         .attr("id","allSolsDatatable");
@@ -52,7 +69,8 @@ function makeSolutionDataTables(dataTableLocSelector){
     var rows = tbody.selectAll("tr")
         .data(data.map(function(d){return d.mvid;}))
         .enter()
-        .append("tr");
+        .append("tr")
+            .attr("id",function(d){return "datatable-row-"+d;});
     // fill row header cells
     rows.selectAll("th")
         .data(function(row){
