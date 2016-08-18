@@ -9,6 +9,12 @@
   text-align: left;
  }
 
+ /* Sense selection table */
+.borderless th,
+.borderless td { 
+     border: none !important; 
+ }
+
 /* Links */
 a,
 a:focus,
