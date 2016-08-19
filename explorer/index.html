@@ -99,7 +99,7 @@
       <!-- Two-column main graph area -->
       <div class="page-header">
         <h1>Visualizations</h1>
-        <div class="btn-group dropdown">
+        <!--<div class="btn-group dropdown">
           <button class="btn btn-group btn-default dropdown-toggle" type="button" data-toggle="dropdown">Display 1
           <span class="caret"></span></button>
           <ul class="dropdown-menu">
@@ -133,13 +133,45 @@
             <li><a class="displayShowHide displayShowHide-showing" id="showhide-2" href="#">Hide</a></li>
           </ul>
         </div>
-      </div>
+      </div>-->
       <div class="container">
+        <form>
+          <div class="row form-group">
+            <label for="firstVizDivSelect" class="col-xs-1 col-form-label">Display 1</label>
+            <div class="col-xs-2">
+              <select class="form-control vizTypeSelector" id="firstVizDivSelect">
+                <option class="displayNoViz" id="displayNoneViz1" value="none">None</option>
+                <option disabled>Using original data</option>
+                <option value="viztype1">viztype1</option>
+                <option value="viztype2" selected>viztype2</option>
+                <option value="viztype3">viztype3</option>
+                <option disabled>Using normalized data</option>
+                <option value="viztype4">viztype4</option>
+                <option value="viztype5">viztype5</option>
+                <option value="viztype6">viztype6</option>
+              </select>
+            </div>
+            <label for="secondVizDivSelect" class="col-xs-1 col-form-label">Display 2</label>
+            <div class="col-xs-2">
+              <select class="form-control vizTypeSelector" id="secondVizDivSelect">
+                <option class="displayNoViz" id="displayNoneViz2" value="none">None</option>
+                <option disabled>Using original data</option>
+                <option value="viztype1">viztype1</option>
+                <option value="viztype2">viztype2</option>
+                <option value="viztype3">viztype3</option>
+                <option disabled>Using normalized data</option>
+                <option value="viztype4">viztype4</option>
+                <option value="viztype5" selected>viztype5</option>
+                <option value="viztype6">viztype6</option>
+              </select>
+            </div>
+            </div>
+          </form>
           <div class="row">
-              <div class="col-xs-6" id="firstVizDiv">
+              <div class="col-xs-6" id="firstVizDiv" style="background:steelblue">
                   ONE
               </div>
-              <div class="col-xs-6" id="secondVizDiv">
+              <div class="col-xs-6" id="secondVizDiv" style="background:gray">
                   TWO
               </div>
           </div>

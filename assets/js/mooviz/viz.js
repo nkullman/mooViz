@@ -30,59 +30,23 @@ makeConflictMetricTables("#conflictmetricstable-container");
 
 
 // Control showing/hiding of viz panels
-d3.selectAll(".displayShowHide")
-    .on("click",function(){
-        var currE = d3.select(this);
-        if (currE.classed("displayShowHide-showing")){
-            // going to hide the display
-            currE.classed("displayShowHide-showing",false);
-            currE.classed("displayShowHide-hidden",true);
-            currE.text("Show");
-
-            if (this.id.endsWith("1")){
-                // hide the first display
-                d3.select("#firstVizDiv").classed("hidden",true);
-                // if 2nd display currently showing, enlarge it
-                if (!d3.select("#secondVizDiv").classed("hidden")){
-                    d3.select("#secondVizDiv").classed("col-xs-6",false).classed("col-xs-12",true);
-                }
-            } else {
-                // hide the second display
-                d3.select("#secondVizDiv").classed("hidden",true);
-                // if 1st display currently showing, enlarge it
-                if (!d3.select("#firstVizDiv").classed("hidden")){
-                    d3.select("#firstVizDiv").classed("col-xs-6",false).classed("col-xs-12",true);
-                }
-            }
-
+d3.selectAll(".vizTypeSelector")
+    .on("change",function(){
+        var currVP = this.id.startsWith("f") ? d3.select("#firstVizDiv") : d3.select("#secondVizDiv");
+        var altVP = this.id.startsWith("f") ? d3.select("#secondVizDiv") : d3.select("#firstVizDiv");
+        if (this.value === "none"){
+            // hiding the toggled panel
+            currVP.classed("hidden",true);
+            // set the other panel to full size
+            altVP.classed("col-xs-6",false).classed("col-xs-12",true);
         } else {
-            // going to show the display
-            currE.classed("displayShowHide-showing",true);
-            currE.classed("displayShowHide-hidden",false);
-            currE.text("Hide");
+            // ensure current panel visible
+            currVP.classed("hidden",false);
+            // set the other panel to half-size
+            altVP.classed("col-xs-6",true).classed("col-xs-12",false);
 
-            if (this.id.endsWith("1")){
-                // show first display
-                // if second display is showing, shrink it, and make first eql to half
-                if (!d3.select("#secondVizDiv").classed("hidden")){
-                    d3.select("#secondVizDiv").classed("col-xs-6",true).classed("col-xs-12",false);
-                    d3.select("#firstVizDiv").classed("col-xs-6",true).classed("col-xs-12",false).classed("hidden",false);
-                } else {
-                    // otherwise, make first equal to whole
-                    d3.select("#firstVizDiv").classed("col-xs-6",false).classed("col-xs-12",true).classed("hidden",false);
-                }
-                
-            } else {
-                // show the second display
-                // if first display is showing, shrink it, and make second eql to half
-                if (!d3.select("#firstVizDiv").classed("hidden")){
-                    d3.select("#firstVizDiv").classed("col-xs-6",true).classed("col-xs-12",false);
-                    d3.select("#secondVizDiv").classed("col-xs-6",true).classed("col-xs-12",false).classed("hidden",false);
-                } else {
-                    // otherwise, make second equal to whole
-                    d3.select("#secondVizDiv").classed("col-xs-6",false).classed("col-xs-12",true).classed("hidden",false);
-                }
-            }
+            // assign appropriate div to current panel
+
         }
     })
 
