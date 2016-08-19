@@ -28,13 +28,17 @@ makeConflictMetricTables("#conflictmetricstable-container");
 
 // Draw charts to their viz divs
 
+// Move the default-selected vizs to the display
+ 
 
 // Control showing/hiding of viz panels
 d3.selectAll(".vizTypeSelector")
     .on("change",function(){
-        var currVP = this.id.startsWith("f") ? $("#firstVizDiv") : $("#secondVizDiv");
-        var altVP = this.id.startsWith("f") ? $("#secondVizDiv") : $("#firstVizDiv");
+        var panelToggled = this.id.startsWith("f") ? 1 : 2;
+        var currVP = panelToggled === 1 ? $("#firstVizDiv") : $("#secondVizDiv");
+        var altVP = panelToggled === 1 ? $("#secondVizDiv") : $("#firstVizDiv");
         var vizSource = $('#masterhiddenvizdiv');
+        var currViz = currVP.find(">:first-child");
         var newViz = $("#"+$(this).val()); // THE DIV WE WANT TO PUT IN currVP. Grab this with jQuery from the hidden div that contains all the viz divs
         if (this.value === "none"){
             // hiding the toggled panel
@@ -49,11 +53,16 @@ d3.selectAll(".vizTypeSelector")
             // set the other panel to half-size
             altVP.addClass("col-xs-6").removeClass("col-xs-12");
 
-            // clear current panel's content
-            //currVP.html("");
+            // remove current panel's content
+            currViz.detach().appendTo(vizSource);
             
-            // assign appropriate div to current panel (and back to the master hidden viz div)
-            newViz.detach().appendTo(vizSource).replaceAll(currVP);
+            // assign appropriate viz div to current panel
+            newViz.detach().appendTo(currVP);
+
+            // change which option is disabled in the other selector
+            var otherSelector = panelToggled === 1 ? $("#secondVizDivSelect") : $("#firstVizDivSelect");
+            otherSelector.find(">.vizoption-disabled").prop("disabled",false).removeClass("vizoption-disabled");
+            otherSelector.find(">[value="+$(this).val()+"]").prop("disabled",true).addClass("vizoption-disabled")
         }
     })
 

@@ -99,41 +99,6 @@
       <!-- Two-column main graph area -->
       <div class="page-header">
         <h1>Visualizations</h1>
-        <!--<div class="btn-group dropdown">
-          <button class="btn btn-group btn-default dropdown-toggle" type="button" data-toggle="dropdown">Display 1
-          <span class="caret"></span></button>
-          <ul class="dropdown-menu">
-            <li class="dropdown-header">Using original data</li>
-            <li><a href="#">HTML</a></li>
-            <li><a href="#">CSS</a></li>
-            <li><a href="#">JavaScript</a></li>
-            <li role="separator" class="divider"></li>
-            <li class="dropdown-header">Using normalized data</li>
-            <li><a href="#">HTML</a></li>
-            <li><a href="#">CSS</a></li>
-            <li><a href="#">JavaScript</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a class="displayShowHide displayShowHide-showing" id="showhide-1" href="#">Hide</a></li>
-          </ul>
-        </div>
-        <div class="btn-group dropdown">
-          <button class="btn btn-group btn-default dropdown-toggle" type="button" data-toggle="dropdown">Display 2
-          <span class="caret"></span></button>
-          <ul class="dropdown-menu">
-            <li class="dropdown-header">Using original data</li>
-            <li><a href="#">HTML</a></li>
-            <li><a href="#">CSS</a></li>
-            <li><a href="#">JavaScript</a></li>
-            <li role="separator" class="divider"></li>
-            <li class="dropdown-header">Using normalized data</li>
-            <li><a href="#">HTML</a></li>
-            <li><a href="#">CSS</a></li>
-            <li><a href="#">JavaScript</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a class="displayShowHide displayShowHide-showing" id="showhide-2" href="#">Hide</a></li>
-          </ul>
-        </div>
-      </div>-->
       <div class="container">
         <form>
           <div class="row form-group">
@@ -143,11 +108,11 @@
                 <option class="displayNoViz" id="displayNoneViz1" value="none">None</option>
                 <option disabled>Using original data</option>
                 <option value="viztype1">viztype1</option>
-                <option value="viztype2" selected>viztype2</option>
+                <option selected value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
                 <option value="viztype4">viztype4</option>
-                <option value="viztype5">viztype5</option>
+                <option disabled class="vizoption-disabled" value="viztype5">viztype5</option>
                 <option value="viztype6">viztype6</option>
               </select>
             </div>
@@ -157,22 +122,22 @@
                 <option class="displayNoViz" id="displayNoneViz2" value="none">None</option>
                 <option disabled>Using original data</option>
                 <option value="viztype1">viztype1</option>
-                <option value="viztype2">viztype2</option>
+                <option disabled class="vizoption-disabled" value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
                 <option value="viztype4">viztype4</option>
-                <option value="viztype5" selected>viztype5</option>
+                <option selected value="viztype5">viztype5</option>
                 <option value="viztype6">viztype6</option>
               </select>
             </div>
             </div>
           </form>
           <div class="row">
-              <div class="col-xs-6" id="firstVizDiv" style="background:steelblue">
-                  ONE
+              <div class="col-xs-6" id="firstVizDiv">
+                  <div class="viz1" id="tempviz1">temp1</div>
               </div>
-              <div class="col-xs-6" id="secondVizDiv" style="background:gray">
-                  TWO
+              <div class="col-xs-6" id="secondVizDiv">
+                  <div class="viz2" id="tempviz2">temp2</div>
               </div>
           </div>
       </div>
