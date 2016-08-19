@@ -26,6 +26,66 @@ configureAndActivateDataTable("#allSolsDatatable");
 // Fill in data tables
 makeConflictMetricTables("#conflictmetricstable-container");
 
+// Draw charts to their viz divs
+
+
+// Control showing/hiding of viz panels
+d3.selectAll(".displayShowHide")
+    .on("click",function(){
+        var currE = d3.select(this);
+        if (currE.classed("displayShowHide-showing")){
+            // going to hide the display
+            currE.classed("displayShowHide-showing",false);
+            currE.classed("displayShowHide-hidden",true);
+            currE.text("Show");
+
+            if (this.id.endsWith("1")){
+                // hide the first display
+                d3.select("#firstVizDiv").classed("hidden",true);
+                // if 2nd display currently showing, enlarge it
+                if (!d3.select("#secondVizDiv").classed("hidden")){
+                    d3.select("#secondVizDiv").classed("col-xs-6",false).classed("col-xs-12",true);
+                }
+            } else {
+                // hide the second display
+                d3.select("#secondVizDiv").classed("hidden",true);
+                // if 1st display currently showing, enlarge it
+                if (!d3.select("#firstVizDiv").classed("hidden")){
+                    d3.select("#firstVizDiv").classed("col-xs-6",false).classed("col-xs-12",true);
+                }
+            }
+
+        } else {
+            // going to show the display
+            currE.classed("displayShowHide-showing",true);
+            currE.classed("displayShowHide-hidden",false);
+            currE.text("Hide");
+
+            if (this.id.endsWith("1")){
+                // show first display
+                // if second display is showing, shrink it, and make first eql to half
+                if (!d3.select("#secondVizDiv").classed("hidden")){
+                    d3.select("#secondVizDiv").classed("col-xs-6",true).classed("col-xs-12",false);
+                    d3.select("#firstVizDiv").classed("col-xs-6",true).classed("col-xs-12",false).classed("hidden",false);
+                } else {
+                    // otherwise, make first equal to whole
+                    d3.select("#firstVizDiv").classed("col-xs-6",false).classed("col-xs-12",true).classed("hidden",false);
+                }
+                
+            } else {
+                // show the second display
+                // if first display is showing, shrink it, and make second eql to half
+                if (!d3.select("#firstVizDiv").classed("hidden")){
+                    d3.select("#firstVizDiv").classed("col-xs-6",true).classed("col-xs-12",false);
+                    d3.select("#secondVizDiv").classed("col-xs-6",true).classed("col-xs-12",false).classed("hidden",false);
+                } else {
+                    // otherwise, make second equal to whole
+                    d3.select("#secondVizDiv").classed("col-xs-6",false).classed("col-xs-12",true).classed("hidden",false);
+                }
+            }
+        }
+    })
+
 
 
 /** Configure and activate the datatable */
