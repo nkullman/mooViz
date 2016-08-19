@@ -43,7 +43,7 @@ d3.selectAll(".vizTypeSelector")
         var otherSelector = panelToggled === 1 ? $("#secondVizDivSelect") : $("#firstVizDivSelect");
         var vizSource = $('#masterhiddenvizdiv');
         var currViz = currVP.find(">:first-child");
-        var newViz = $("#"+$(this).val()); // THE DIV WE WANT TO PUT IN currVP. Grab this with jQuery from the hidden div that contains all the viz divs
+        var newViz = $("#"+$(this).val());
         if (this.value === "none"){
             // hiding the toggled panel
             currVP.addClass("hidden");
