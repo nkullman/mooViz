@@ -32,21 +32,28 @@ makeConflictMetricTables("#conflictmetricstable-container");
 // Control showing/hiding of viz panels
 d3.selectAll(".vizTypeSelector")
     .on("change",function(){
-        var currVP = this.id.startsWith("f") ? d3.select("#firstVizDiv") : d3.select("#secondVizDiv");
-        var altVP = this.id.startsWith("f") ? d3.select("#secondVizDiv") : d3.select("#firstVizDiv");
+        var currVP = this.id.startsWith("f") ? $("#firstVizDiv") : $("#secondVizDiv");
+        var altVP = this.id.startsWith("f") ? $("#secondVizDiv") : $("#firstVizDiv");
+        var vizSource = $('#masterhiddenvizdiv');
+        var newViz = $("#"+$(this).val()); // THE DIV WE WANT TO PUT IN currVP. Grab this with jQuery from the hidden div that contains all the viz divs
         if (this.value === "none"){
             // hiding the toggled panel
-            currVP.classed("hidden",true);
+            currVP.addClass("hidden");
+
             // set the other panel to full size
-            altVP.classed("col-xs-6",false).classed("col-xs-12",true);
+            altVP.removeClass("col-xs-6").addClass("col-xs-12");
         } else {
             // ensure current panel visible
-            currVP.classed("hidden",false);
+            currVP.removeClass("hidden");
+
             // set the other panel to half-size
-            altVP.classed("col-xs-6",true).classed("col-xs-12",false);
+            altVP.addClass("col-xs-6").removeClass("col-xs-12");
 
-            // assign appropriate div to current panel
-
+            // clear current panel's content
+            //currVP.html("");
+            
+            // assign appropriate div to current panel (and back to the master hidden viz div)
+            newViz.detach().appendTo(vizSource).replaceAll(currVP);
         }
     })
 
