@@ -96,6 +96,53 @@
         <p>This is a placeholder for some header content that would be useful to see here.</p>
       </div>
 
+      <!-- Two-column main graph area -->
+      <div class="page-header">
+        <h1>Visualizations</h1>
+      <div class="container">
+        <form>
+          <div class="row form-group">
+            <label for="firstVizDivSelect" class="col-xs-1 col-form-label">Display 1</label>
+            <div class="col-xs-2">
+              <select class="form-control vizTypeSelector" id="firstVizDivSelect">
+                <option class="displayNoViz" id="displayNoneViz1" value="none">None</option>
+                <option disabled>Using original data</option>
+                <option value="viztype1">viztype1</option>
+                <option selected value="viztype2">viztype2</option>
+                <option value="viztype3">viztype3</option>
+                <option disabled>Using normalized data</option>
+                <option value="viztype4">viztype4</option>
+                <option disabled class="vizoption-disabled" value="viztype5">viztype5</option>
+                <option value="viztype6">viztype6</option>
+              </select>
+            </div>
+            <label for="secondVizDivSelect" class="col-xs-1 col-form-label">Display 2</label>
+            <div class="col-xs-2">
+              <select class="form-control vizTypeSelector" id="secondVizDivSelect">
+                <option class="displayNoViz" id="displayNoneViz2" value="none">None</option>
+                <option disabled>Using original data</option>
+                <option value="viztype1">viztype1</option>
+                <option disabled class="vizoption-disabled" value="viztype2">viztype2</option>
+                <option value="viztype3">viztype3</option>
+                <option disabled>Using normalized data</option>
+                <option value="viztype4">viztype4</option>
+                <option selected value="viztype5">viztype5</option>
+                <option value="viztype6">viztype6</option>
+              </select>
+            </div>
+            </div>
+          </form>
+          <div class="row">
+              <div class="col-xs-6" id="firstVizDiv">
+                  <div class="viz1" id="tempviz1">temp1</div>
+              </div>
+              <div class="col-xs-6" id="secondVizDiv">
+                  <div class="viz2" id="tempviz2">temp2</div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Datatable area -->
       <div class="page-header">
         <h1>Datatable</h1>
       </div>
@@ -112,6 +159,7 @@
         </div>
       </div>
 
+      <!-- Conflict metrics area -->
       <div class="page-header">
         <h1>Conflict metrics</h1>
       </div>
@@ -191,6 +239,16 @@
         </div>
 
       </div>
+    </div>
+
+    <!-- Master hidden div of vizs -->
+    <div id="masterhiddenvizdiv">
+      <div id="viztype1">viztype1</div>
+      <div id="viztype2">viztype2</div>
+      <div id="viztype3">viztype3</div>
+      <div id="viztype4">viztype4</div>
+      <div id="viztype5">viztype5</div>
+      <div id="viztype6">viztype6</div>
     </div>
 
     <!-- custom scripts -->
