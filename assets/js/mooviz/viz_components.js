@@ -1,7 +1,9 @@
 // Draw charts to their viz divs
 /** Viz components */
 /** Universal data acros vizs */
-var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
+    .domain(frontiers);
+makeFrontierColorLegend();
 
 /** Data specific to the non-normalized 2D scatterplot */
 var scatter2d = {};
@@ -22,7 +24,7 @@ scatter2d["radiusScale"] = d3.scaleSqrt().range(scatter2d["radiusScaleRange"]),
 scatter2d["k"] = 1;
 
 /* Make the viz */
-make2DScatterViz("#viztype1");
+make2DScatterViz("#scatter2dVizDiv");
 
 // Move the default-selected vizs to the display
  var curr1 = "viztype2";
@@ -72,11 +74,16 @@ d3.selectAll(".vizTypeSelector")
 
 
 function make2DScatterViz(loc){
+    // give ability to reset zoom
+    d3.select("#zoomReset-scatter2d").on("click",function(){
+        d3.select("#scatter2DSVG").transition().duration(750).call(zoomListener.transform, d3.zoomIdentity);
+    });
+
     // define initial state of the objectives
     scatter2d["objStates"] = Object.keys(datacols);
 
     // initial canvas
-    var svg = d3.select(loc).append("svg")
+    var svg = d3.select(loc).insert("svg",":first-child")
         .attr('id',"scatter2DSVG")
         .attr('viewBox', "0 0 " + (scatter2d["width"] + scatter2d["margin"].right + scatter2d["margin"].left) + " " + (scatter2d["height"] + scatter2d["margin"].top + scatter2d["margin"].bottom))
         .attr('preserveAspectRatio',"xMinYMin meet")
@@ -201,6 +208,40 @@ function make2DScatterViz(loc){
                 .attr("cy", function(d) {return scatter2d["yScale"](d[scatter2d["objStates"][1]])})
         }
         // reset zoom
-        d3.select("#scatter2DSVG").transition().duration(750).call(zoomListener.transform, d3.zoomIdentity);;
+        d3.select("#scatter2DSVG").transition().duration(750).call(zoomListener.transform, d3.zoomIdentity);
     }
+}
+
+function makeFrontierColorLegend(){
+    var width = 1000,
+        height = 75,
+        boxWidth = 18;
+
+    var legSvg = d3.select("#legendHolder")
+            .style("background-color","#eee")
+            .style("border-radius","6px")
+        .append("svg")
+            .attr('id',"legendSVG")
+            .attr('viewBox', "0 0 "+width+" "+height)
+            .attr('preserveAspectRatio',"xMinYMin meet");
+
+    var legend = legSvg.selectAll(".legend")
+        .data(colorScale.domain())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(" + (i * width / frontiers.length) + ","+(height-boxWidth)/2+")"; });
+
+    legend.append("rect")
+        //.attr("x", width + 24)
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", colorScale);
+
+    legend.append("text")
+        .attr("x", 1.5*boxWidth)
+        .attr("y", (height)/2)
+        .style("text-anchor", "beginning")
+        .style("font-size","1.5em")
+        .text(function(d) { return d; });
+
 }
