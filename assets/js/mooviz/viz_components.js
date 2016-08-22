@@ -82,41 +82,72 @@ function make2DScatterViz(loc){
     .append("g")
         .attr("transform", "translate(" + scatter2d["margin"].left + "," + scatter2d["margin"].top + ")");
 
+    // define axes' domains
+    scatter2d["xScale"].domain(d3.extent(data, function(d) { return d[scatter2d["objStates"][0]]; })).nice();
+    scatter2d["yScale"].domain(d3.extent(data, function(d) { return d[scatter2d["objStates"][1]]; })).nice();
+    scatter2d["radiusScale"].domain(d3.extent(data, function(d) { return d[scatter2d["objStates"][2]]; })).nice()
+
     // handling zoom
     var zoomListener = d3.zoom()
         .scaleExtent([1,10])
-        .translateExtent([
-            [d3.min(datasets, function(d) { return d[scatter2d["objStates"][0]]; }),
-                d3.min(datasets, function(d) { return d[scatter2d["objStates"][1]]; })],
-            [scatter2d["width"]+50,scatter2d["height"]+50]])
+        /*.translateExtent([
+            [d3.min(data, function(d) { return d[scatter2d["objStates"][0]]; }),
+                d3.min(data, function(d) { return d[scatter2d["objStates"][1]]; })],
+            [scatter2d["width"]+50,scatter2d["height"]+50]])*/
         .on("zoom", zoomHandler);
 
     function zoomHandler() {
-    
-        svg.attr("transform",d3.event.transform)
         
         // update axes
         svg.select(".x.axis.scatter2d").call(scatter2d["xAxis"].scale(d3.event.transform.rescaleX(scatter2d["xScale"])));
         svg.select(".y.axis.scatter2d").call(scatter2d["yAxis"].scale(d3.event.transform.rescaleY(scatter2d["yScale"])));
         // update points
         d3.selectAll(".dot.scatter2d")
-            .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")")
-        //.attr("r", function(d) {return radiusScale(d[radiusVar])/d3.event.scale});
+            .attr("transform", d3.event.transform)
+            // toggle below comment for radius-resizing on zoom
+            //.attr("r", function(d) {return scatter2d["radiusScale"](d[scatter2d["objStates"][2]])/d3.event.transform.k});
     }
 
-    // handle axes updating
+    // handle axes updating on click of text
+    function updateObjStates(axisClicked){
+        if (axisClicked === "x"){
+            // move first element to back of array, advance others besides element at i=1
+            scatter2d["objStates"].push(scatter2d["objStates"].shift());
+            scatter2d["objStates"].splice(1,0,scatter2d["objStates"].splice(0,1)[0]);
+            // update xAxis
+            // update the x and radius scales
+            scatter2d["xScale"].domain(d3.extent(data, function(d) { return d[scatter2d["objStates"][0]]; })).nice();
+            scatter2d["radiusScale"].domain(d3.extent(data, function(d) { return d[scatter2d["objStates"][2]]; })).nice();
+            // update the axes
+            d3.select(".x.axis.scatter2d").transition().duration(1000).call(scatter2d["xAxis"]);
+            d3.select(".x.axis.scatter2d .label").text(scatter2d["objStates"][0]);
+            // update the zoom behavior
+            d3.select("#scatter2DSVG").call(zoomListener);
+            // update the circles' x pos. and radius
+            console.log(zoomListener());// HERE !! TODO
+            d3.selectAll(".dot.scatter2d").transition().duration(1000)
+                .attr("cx", function(d) {return scatter2d["xScale"](d[scatter2d["objStates"][0]])})
+                .attr("r", function(d) {return scatter2d["radiusScale"](d[scatter2d["objStates"][2]])/zoomListener.scale();});
+            // update the radius legend
+            //d3.select(this).call(updateRadiusLegend);
+        } else { // clicked === "y"
+            // move second element to the end
+            scatter2d["objStates"].splice(scatter2d["objStates"].length-1,0,scatter2d["objStates"].splice(1,1)[0]);
+        }
+        // reset zoom
+        d3.select("#scatter2DSVG").transition().call(zoomListener.translate([0,0]).scale(1).event);
+    }
+
+    // handle reset zoom (click some text somewhere)
     // TODO
 
-    // handle axes' domains
-    scatter2d["xScale"].domain(d3.extent(datasets, function(d) { return d[scatter2d["objStates"][0]]; })).nice();
-    scatter2d["yScale"].domain(d3.extent(datasets, function(d) { return d[scatter2d["objStates"][1]]; })).nice();
-    scatter2d["radiusScale"].domain(d3.extent(datasets, function(d) { return d[scatter2d["objStates"][2]]; })).nice()
 
-    d3.select("#scatter2DSVG").call(zoomListener)//.rescaleX(scatter2d["xScale"]).rescaleY(scatter2d["yScale"]));
+    d3.select("#scatter2DSVG").call(zoomListener);
 
     svg.append("g")
       .attr("class", "x axis scatter2d")
       .attr("transform", "translate(0," + scatter2d["height"] + ")")
+      .on("click",updateObjStates)
       .call(scatter2d["xAxis"])
     .append("text")
       .attr("class", "label xAxisLabel")
@@ -141,7 +172,7 @@ function make2DScatterViz(loc){
       .text(scatter2d["objStates"][1]);
 
     svg.selectAll(".dot.scatter2d")
-        .data(datasets)
+        .data(data)
         .enter().append("circle")
         .attr("class", "dot scatter2d")
         .attr("id", function(d){ return "dot-scatter2d-" + d.mvid; })
@@ -159,8 +190,9 @@ function make2DScatterViz(loc){
         .on("click", function(d){
             //clickToggleSelected(d);
             console.log("click! " + this.id);
+            updateObjStates("x");
         })
-        .attr("r", function(d) {return scatter2d["radiusScale"](d[scatter2d["objStates"][2]])/zoomListener.scale();})
+        .attr("r", "4")//function(d) {return scatter2d["radiusScale"](d[scatter2d["objStates"][2]])/zoomListener.scale();})
         .attr("cx", function(d) { return scatter2d["xScale"](d[scatter2d["objStates"][0]]); })
         .attr("cy", function(d) { return scatter2d["yScale"](d[scatter2d["objStates"][1]]); })
         .attr("fill", function(d) { return colorScale(d.Frontier); })
