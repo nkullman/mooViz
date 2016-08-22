@@ -27,3 +27,7 @@ body {
 .axis .label:hover {
     text-decoration: underline;
 }
+.xAxisLabel,
+.yAxisLabel {
+  font-size: 1.15em;
+}
