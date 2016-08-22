@@ -60,30 +60,6 @@
             <li><a data-toggle="modal" href="#aboutModal">About</a></li>
             <li><a data-toggle="modal" href="#helpModal">Help</a></li>
             <li><a data-toggle="modal" href="#contactModal">Contact</a></li>
-            <!--<li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li>
-                  <label>
-                    <input type="checkbox" data-toggle="toggle">
-                    Second display
-                  </label>
-                </li>
-                <li>
-                  <label>
-                    <input type="checkbox" data-toggle="toggle">
-                    Normalize dataset
-                  </label>
-                </li>
-                <li><a href="#">Something else here</a></li>
-                <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-              </ul>
-            </li>
-            <li><a href="#mapping">Mapping</a></li>
-          </ul>-->
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -92,8 +68,7 @@
 
       <!-- Main jumbotron for a primary marketing message or call to action -->
       <div class="jumbotron">
-        <h1>Dataset Title</h1>
-        <p>This is a placeholder for some header content that would be useful to see here.</p>
+        <h1>MOO Viz</h1>
       </div>
 
       <!-- Two-column main graph area -->
@@ -107,7 +82,7 @@
               <select class="form-control vizTypeSelector" id="firstVizDivSelect">
                 <option class="displayNoViz" id="displayNoneViz1" value="none">None</option>
                 <option disabled>Using original data</option>
-                <option value="viztype1">viztype1</option>
+                <option value="scatter2dVizDiv">2D Scatterplot</option>
                 <option selected value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
@@ -121,7 +96,7 @@
               <select class="form-control vizTypeSelector" id="secondVizDivSelect">
                 <option class="displayNoViz" id="displayNoneViz2" value="none">None</option>
                 <option disabled>Using original data</option>
-                <option value="viztype1">viztype1</option>
+                <option value="scatter2dVizDiv">2D Scatterplot</option>
                 <option disabled class="vizoption-disabled" value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
@@ -132,6 +107,10 @@
             </div>
             </div>
           </form>
+          <div class="row">
+            <label for="legendHolder" class="col-xs-1 col-form-label">Legend</label>
+            <div class="col-xs-6" id="legendHolder"></div>
+          </div>
           <div class="row">
               <div class="col-xs-6" id="firstVizDiv">
                   <div class="viz1" id="tempviz1"><i>loading...</i></div>
@@ -243,7 +222,9 @@
 
     <!-- Master hidden div of vizs -->
     <div id="masterhiddenvizdiv" class="hidden">
-      <div id="viztype1">viztype1</div>
+      <div id="scatter2dVizDiv">
+        <button type="button" id = "zoomReset-scatter2d" class="btn btn-sm">Reset zoom</button>
+      </div>
       <div id="viztype2">viztype2</div>
       <div id="viztype3">viztype3</div>
       <div id="viztype4">viztype4</div>
