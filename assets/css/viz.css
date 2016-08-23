@@ -31,3 +31,8 @@ body {
 .yAxisLabel {
   font-size: 1.15em;
 }
+
+.dot.selected,
+.dot.active {
+  opacity: 1 !important;
+}
