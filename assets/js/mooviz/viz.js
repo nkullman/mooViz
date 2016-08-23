@@ -23,6 +23,9 @@ nadirs["normalized"] = getNadirVectors(ndatasets, ndatacols);
 // Compute frontier statistics
 var datastats = getNormalizedDatasetStats();
 
+// mvids of selected solutions
+var selectedSolutions = [];
+
 // Populate datatable of all solutions
 makeSolutionDataTable("#datatable-container");
 configureAndActivateDataTable("#allSolsDatatable");
@@ -75,7 +78,8 @@ function makeSolutionDataTable(dataTableLocSelector){
         .data(data.map(function(d){return d.mvid;}))
         .enter()
         .append("tr")
-            .attr("id",function(d){return "datatable-row-"+d;});
+            .attr("id",function(d){return "datatable-row-"+d;})
+            .attr("class",function(d){return "actionableDrawingElement "+d.mvid;});
     // fill row header cells
     rows.selectAll("th")
         .data(function(row){
