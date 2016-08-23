@@ -1,15 +1,8 @@
-// Draw charts to their viz divs
-/** Viz components */
-/** Universal data acros vizs */
-var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-    .domain(frontiers);
-makeFrontierColorLegend();
-
-/** Data specific to the non-normalized 2D scatterplot */
+/** Non-normalized 2D scatterplot */
 var scatter2d = {};
 scatter2d["margin"] = {top: 20, right: 50, bottom: 50, left: 80},
 scatter2d["width"] = 1000 - scatter2d["margin"].left - scatter2d["margin"].right,
-scatter2d["height"] = 400 - scatter2d["margin"].top - scatter2d["margin"].bottom,
+scatter2d["height"] = 700 - scatter2d["margin"].top - scatter2d["margin"].bottom,
 scatter2d["xScale"] = d3.scaleLinear()
     .range([0, scatter2d["width"]]),
 scatter2d["yScale"] = d3.scaleLinear()
@@ -26,53 +19,10 @@ scatter2d["k"] = 1;
 /* Make the viz */
 make2DScatterViz("#scatter2dVizDiv");
 
-// Move the default-selected vizs to the display
- var curr1 = "viztype2";
- var curr2 = "viztype5";
- $("#"+curr1).detach().replaceAll("#firstVizDiv>:first-child");
- $("#"+curr2).detach().replaceAll("#secondVizDiv>:first-child");
-
-// Control showing/hiding of viz panels
-d3.selectAll(".vizTypeSelector")
-    .on("change",function(){
-        var panelToggled = this.id.startsWith("f") ? 1 : 2;
-        var currVP = panelToggled === 1 ? $("#firstVizDiv") : $("#secondVizDiv");
-        var altVP = panelToggled === 1 ? $("#secondVizDiv") : $("#firstVizDiv");
-        var otherSelector = panelToggled === 1 ? $("#secondVizDivSelect") : $("#firstVizDivSelect");
-        var vizSource = $('#masterhiddenvizdiv');
-        var currViz = currVP.find(">:first-child");
-        var newViz = $("#"+$(this).val());
-        if (this.value === "none"){
-            // hiding the toggled panel
-            currVP.addClass("hidden");
-
-            // enable the option in the other selector
-            otherSelector.find(">.vizoption-disabled").prop("disabled",false);
-
-            // set the other panel to full size
-            altVP.removeClass("col-xs-6").addClass("col-xs-12");
-        } else {
-            // ensure current panel visible
-            currVP.removeClass("hidden");
-
-            // set the other panel to half-size
-            altVP.addClass("col-xs-6").removeClass("col-xs-12");
-
-            // remove current panel's content
-            currViz.detach().appendTo(vizSource);
-            
-            // assign appropriate viz div to current panel
-            newViz.detach().appendTo(currVP);
-
-            // change which option is disabled in the other selector
-            otherSelector.find(">.vizoption-disabled").prop("disabled",false).removeClass("vizoption-disabled");
-            otherSelector.find(">[value="+$(this).val()+"]").prop("disabled",true).addClass("vizoption-disabled");
-        }
-    })
-
-
-
-
+/**
+ * Draws the 2D Scaterplot visualization on the div
+ * provided in the loc argument
+ */
 function make2DScatterViz(loc){
     // give ability to reset zoom
     d3.select("#zoomReset-scatter2d").on("click",function(){
@@ -281,38 +231,4 @@ function make2DScatterViz(loc){
             .style("font-size","1.5em")
             .text(function(d) { return d; });
       }
-}
-
-function makeFrontierColorLegend(){
-    var width = 1000,
-        height = 75,
-        boxWidth = 18;
-
-    var legSvg = d3.select("#legendHolder")
-            .style("background-color","#eee")
-            .style("border-radius","6px")
-        .append("svg")
-            .attr('id',"legendSVG")
-            .attr('viewBox', "0 0 "+width+" "+height)
-            .attr('preserveAspectRatio',"xMinYMin meet");
-
-    var legend = legSvg.selectAll(".legend")
-        .data(colorScale.domain())
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (i * width / frontiers.length) + ","+(height-boxWidth)/2+")"; });
-
-    legend.append("rect")
-        //.attr("x", width + 24)
-        .attr("width", 18)
-        .attr("height", 18)
-        .attr("fill", colorScale);
-
-    legend.append("text")
-        .attr("x", 1.5*boxWidth)
-        .attr("y", (height)/2)
-        .style("text-anchor", "beginning")
-        .style("font-size","1.5em")
-        .text(function(d) { return d; });
-
 }

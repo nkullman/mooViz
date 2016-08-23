@@ -86,7 +86,7 @@
                 <option selected value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
-                <option value="viztype4">viztype4</option>
+                <option value="scatter2dNVizDiv">2D Scatterplot</option>
                 <option disabled class="vizoption-disabled" value="viztype5">viztype5</option>
                 <option value="viztype6">viztype6</option>
               </select>
@@ -100,7 +100,7 @@
                 <option disabled class="vizoption-disabled" value="viztype2">viztype2</option>
                 <option value="viztype3">viztype3</option>
                 <option disabled>Using normalized data</option>
-                <option value="viztype4">viztype4</option>
+                <option value="scatter2dNVizDiv">2D Scatterplot</option>
                 <option selected value="viztype5">viztype5</option>
                 <option value="viztype6">viztype6</option>
               </select>
@@ -222,6 +222,7 @@
 
     <!-- Master hidden div of vizs -->
     <div id="masterhiddenvizdiv" class="hidden">
+      <!-- Non-normalized vizs -->
       <div id="scatter2dVizDiv">
         <button type="button" id = "zoomReset-scatter2d" class="btn btn-sm">Reset zoom</button>
         <button type="button" id = "radiusEncode-scatter2d" class="btn btn-sm">Show/hide third variable</button>
@@ -231,13 +232,19 @@
       </div>
       <div id="viztype2">viztype2</div>
       <div id="viztype3">viztype3</div>
-      <div id="viztype4">viztype4</div>
+      <!-- Normalized vizs -->
+      <div id="scatter2dNVizDiv">
+        <button type="button" id = "zoomReset-scatter2dN" class="btn btn-sm">Reset zoom</button>
+        <button type="button" id = "radiusEncode-scatter2dN" class="btn btn-sm">Show/hide third variable</button>
+      </div>
       <div id="viztype5">viztype5</div>
       <div id="viztype6">viztype6</div>
     </div>
 
     <!-- custom scripts -->
     <script src="../assets/js/mooviz/viz.js"></script>
-    <script src="../assets/js/mooviz/viz_components.js"></script>
+    <script src="../assets/js/mooviz/viz_components_general.js"></script>
+    <script src="../assets/js/mooviz/viz_components_2dScatter.js"></script>
+    <script src="../assets/js/mooviz/viz_components_2dScatterNormalized.js"></script>
   </body>
 </html>
