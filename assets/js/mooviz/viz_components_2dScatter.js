@@ -86,23 +86,19 @@ function make2DScatterViz(loc){
     svg.selectAll(".dot.scatter2d")
         .data(data)
         .enter().append("circle")
-        .attr("class", function(d){ return "dot scatter2d "+d.mvid; })
+        .attr("class", function(d){ return "dot scatter2d actionableDrawingElement"+d.mvid; })
         .attr("id", function(d){ return "dot-scatter2d-" + d.mvid; })
-        //.classed("selected", false)
         .on('mouseover', function(){
             //d3.select(this).call(tip.show);
-            //classMeAndMyBrothers(this, "active", true);
-            console.log("mouseover! " + this.id);
+            classingVizObjects(d.mvid,"active",true);
             })
-        .on('mouseout', function(){
+        .on('mouseout', function(d){
             //d3.select(this).call(tip.hide);
-            //classMeAndMyBrothers(this, "active", false);
-            console.log("mouseout! " + this.id);
+            classingVizObjects(d.mvid,"active",false);
             })
         .on("click", function(d){
             //clickToggleSelected(d);
             console.log("click! " + this.id);
-            updateObjStates("y");
         })
         .attr("r", function(d) {return scatter2d["radiusScale"](d[scatter2d["objStates"][2]])/scatter2d.k;})
         .attr("cx", function(d) { return scatter2d["xScale"](d[scatter2d["objStates"][0]]); })

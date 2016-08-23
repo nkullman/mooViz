@@ -1,6 +1,6 @@
 // Draw charts to their viz divs
 /** Viz components */
-/** Universal data acros vizs */
+/** Universal data across vizs */
 var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
     .domain(frontiers);
 makeFrontierColorLegend();
@@ -71,7 +71,6 @@ function makeFrontierColorLegend(){
         .attr("transform", function(d, i) { return "translate(" + (i * width / frontiers.length) + ","+(height-boxWidth)/2+")"; });
 
     legend.append("rect")
-        //.attr("x", width + 24)
         .attr("width", 18)
         .attr("height", 18)
         .attr("fill", colorScale);
@@ -83,4 +82,12 @@ function makeFrontierColorLegend(){
         .style("font-size","1.5em")
         .text(function(d) { return d; });
 
+}
+
+/**
+ * Handles the selection/activation of solutions from the data
+ */
+function classingVizObjects(mvid, classification,classState){
+    d3.selectAll("."+mvid+".actionableDrawingElement")
+        .classed(classification,classState);
 }
