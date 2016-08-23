@@ -161,6 +161,8 @@ function make2DScatterViz(loc){
         .attr("opacity", 0.2)
         .style("cursor","pointer");
 
+    makeRadiusLegend("#radiusLegendHolder-scatter2d");
+
     function zoomHandler() {
         // update curr zoom extent on scatter2d
         scatter2d.k = d3.event.transform.k;
@@ -190,8 +192,6 @@ function make2DScatterViz(loc){
             // update the circles' x position (radius updated in later call to zoomListener(?))
             d3.selectAll(".dot.scatter2d").transition().duration(1000)
                 .attr("cx", function(d) {return scatter2d["xScale"](d[scatter2d["objStates"][0]])})
-            // update the radius legend
-            //d3.select(this).call(updateRadiusLegend);
         } else { // clicked === "y"
             // move second element to the end
             scatter2d["objStates"].splice(scatter2d["objStates"].length-1,0,scatter2d["objStates"].splice(1,1)[0]);
@@ -207,9 +207,80 @@ function make2DScatterViz(loc){
             d3.selectAll(".dot.scatter2d").transition().duration(1000)
                 .attr("cy", function(d) {return scatter2d["yScale"](d[scatter2d["objStates"][1]])})
         }
+        // update radius legend
+        d3.select(this).call(updateRadiusLegend);
         // reset zoom
         d3.select("#scatter2DSVG").transition().duration(750).call(zoomListener.transform, d3.zoomIdentity);
     }
+
+    // radius-updating
+    d3.select("#radiusEncode-scatter2d")
+        .on("click", function(){
+            scatter2d.encodeRadius = !scatter2d.encodeRadius;
+            if (scatter2d.encodeRadius){
+                scatter2d.radiusScaleRange = [scatter2d.dotRadius*0.5, scatter2d.dotRadius*5];
+                scatter2d.radiusScale.range(scatter2d.radiusScaleRange);
+                updateRadiusLegend();
+                d3.select("#radiusLegendHolder-scatter2d").classed("hidden",false);
+            } else {
+                d3.select("#radiusLegendHolder-scatter2d").classed("hidden",true);
+                scatter2d.radiusScaleRange = [scatter2d.dotRadius, scatter2d.dotRadius];
+                scatter2d.radiusScale.range(scatter2d.radiusScaleRange);
+            }
+            // update the circles
+            d3.selectAll(".dot.scatter2d").transition()
+                .attr("r", function(d) {return scatter2d.radiusScale(d[scatter2d.objStates[2]])/scatter2d.k;});
+      });
+
+      function updateRadiusLegend(){
+        // update legend vals...
+        var radiusLegendVals = scatter2d.radiusScale.domain().map(function(d) {return d;})
+        radiusLegendVals.splice(1,0,d3.mean(scatter2d.radiusScale.domain()));
+        // update title
+        d3.select("#radiusLegendTitle-2dscatter").text(scatter2d.objStates[2]);
+        // update entries' circle sizes
+        d3.selectAll(".radiusLegendEntry-scatter2d").attr("r", function(d,i){return scatter2d.radiusScale(radiusLegendVals[i]);})
+        // update entries' text
+        d3.selectAll(".radiusLegendText-scatter2d").text(function(d,i){return radiusLegendVals[i];})
+    }
+
+      function makeRadiusLegend(loc){
+        // title
+        d3.select("#radiusLegendTitle-2dscatter")
+            .text(scatter2d.objStates[2]);
+        // legend entries
+        var radiusLegendVals = scatter2d.radiusScale.domain();
+        radiusLegendVals.splice(1,0,d3.mean(scatter2d.radiusScale.domain()));
+        // main svg
+        var width = 1000,
+            height = 75;
+        var legSvg = d3.select(loc)
+            .append("svg")
+                .attr('id',"radiuslegendSVG-scatter2d")
+                .attr('viewBox', "0 0 "+width+" "+height)
+                .attr('preserveAspectRatio',"xMinYMin meet");
+
+        var legend = legSvg.selectAll(".legend")
+            .data(radiusLegendVals)
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform",function(d, i)
+                {return "translate(" + (i * width / 3) + ","+(height-scatter2d.radiusScale.range()[1])/2+")"; });
+
+        legend.append("circle")
+            .attr("x", 2*scatter2d.radiusScale(radiusLegendVals[2]))
+            .attr("class","radiusLegendEntry-scatter2d")
+            .attr("r", function(d,i){return scatter2d.radiusScale(radiusLegendVals[i]);})
+            .attr("fill", "#eee");
+
+        legend.append("text")
+            .attr("x", 2.5*scatter2d.radiusScale.range()[1])
+            .attr("y", (height)/2)
+            .attr("class","radiusLegendText-scatter2d")
+            .style("text-anchor", "beginning")
+            .style("font-size","1.5em")
+            .text(function(d) { return d; });
+      }
 }
 
 function makeFrontierColorLegend(){
