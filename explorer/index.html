@@ -1,79 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="Explore solution sets to multi-objective optimization problems.">
-    <meta name="author" content="Nicholas Kullman">
-    <link rel="icon" href="./assets/favicon.ico">
 
-    <title>MOO Viz | Explorer</title>
-    
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    
-    <!-- D3 -->
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="Explore solution sets to multi-objective optimization problems.">
+  <meta name="author" content="Nicholas Kullman">
+  <link rel="icon" href="./assets/favicon.ico">
 
-    <!-- Latest compiled and minified BootStrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <title>MOO Viz | Explorer</title>
 
-    <!-- Optional BootStrap theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-    <!-- Latest compiled and minified BootStrap JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
 
-    <!-- For Bootstrap toggle switches -->
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  <!-- Latest compiled and minified BootStrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
 
-    <!-- Datatables -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.css"/>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.js"></script>
-    
-    <!-- Custom styles for this page -->
-    <link href="../assets/css/viz.css" rel="stylesheet">
-    
+  <!-- Optional BootStrap theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+    crossorigin="anonymous">
 
-  </head>
+  <!-- Latest compiled and minified BootStrap JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
 
-  <body>
+  <!-- For Bootstrap toggle switches -->
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+  <!-- Datatables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.css"
+  />
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.js"></script>
+
+  <!-- Custom styles for this page -->
+  <link href="../assets/css/viz.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+          aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="../">MOO Viz</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a>Explorer</a></li>
-            <li><a data-toggle="modal" href="#aboutModal">About</a></li>
-            <li><a data-toggle="modal" href="#helpModal">Help</a></li>
-            <li><a data-toggle="modal" href="#contactModal">Contact</a></li>
-        </div><!--/.nav-collapse -->
+        <a class="navbar-brand" href="../">MOO Viz</a>
       </div>
-    </nav>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a>Explorer</a></li>
+          <li><a data-toggle="modal" href="#aboutModal">About</a></li>
+          <li><a data-toggle="modal" href="#helpModal">Help</a></li>
+          <li><a data-toggle="modal" href="#contactModal">Contact</a></li>
+      </div>
+      <!--/.nav-collapse -->
+    </div>
+  </nav>
 
-    <div class="container theme-showcase" role="main">
+  <div class="container theme-showcase" role="main">
 
-      <!-- Main jumbotron for a primary marketing message or call to action
+    <!-- Main jumbotron for a primary marketing message or call to action
       <div class="jumbotron">
         <h1>MOO Viz</h1>
       </div>-->
 
-      <!-- Two-column main graph area -->
-      <div class="page-header">
-        <h1>Visualizations</h1>
+    <!-- Two-column main graph area -->
+    <div class="page-header">
+      <h1>Visualizations</h1>
       <div class="container">
         <form>
           <div class="row form-group">
@@ -105,20 +112,20 @@
                 <option value="viztype6">viztype6</option>
               </select>
             </div>
-            </div>
-          </form>
-          <div class="row">
-            <label for="legendHolder" class="col-xs-1 col-form-label">Legend</label>
-            <div class="col-xs-6" id="legendHolder"></div>
           </div>
-          <div class="row">
-              <div class="col-xs-6" id="firstVizDiv">
-                  <div class="viz1" id="tempviz1"><i>loading...</i></div>
-              </div>
-              <div class="col-xs-6" id="secondVizDiv">
-                  <div class="viz2" id="tempviz2"><i>loading...</i></div>
-              </div>
+        </form>
+        <div class="row">
+          <label for="legendHolder" class="col-xs-1 col-form-label">Legend</label>
+          <div class="col-xs-6" id="legendHolder"></div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6" id="firstVizDiv">
+            <div class="viz1" id="tempviz1"><i>loading...</i></div>
           </div>
+          <div class="col-xs-6" id="secondVizDiv">
+            <div class="viz2" id="tempviz2"><i>loading...</i></div>
+          </div>
+        </div>
       </div>
 
       <!-- Datatable area -->
@@ -156,18 +163,19 @@
             <h3 class="modal-title">MOO Viz: Multi-objective optimization visualization</h3>
           </div>
           <div class="modal-body">
-            <p><b>MOO Viz</b> exists to help visualize and understand Pareto-optimal point sets, specifically, those produced by the solutions of multi-objective math programming models.</p>
+            <p><b>MOO Viz</b> exists to help visualize and understand Pareto-optimal point sets, specifically, those produced
+              by the solutions of multi-objective math programming models.</p>
             <p>
-              To compare these point sets (<i>frontiers</i>) MOO Viz can produce a handful of visualization aids, from simple tables to scatterplots to parallel coordinate plots.
-              MOO Viz also computes metrics that describe the competition between frontiers in a dataset and between objectives within a frontier.
-              The metrics include correlation coefficients, the hypervolume indicator and other measures commonly used in evolutionary multi-objective optimization. 
+              To compare these point sets (<i>frontiers</i>) MOO Viz can produce a handful of visualization aids, from simple
+              tables to scatterplots to parallel coordinate plots. MOO Viz also computes metrics that describe the competition
+              between frontiers in a dataset and between objectives within a frontier. The metrics include correlation coefficients,
+              the hypervolume indicator and other measures commonly used in evolutionary multi-objective optimization.
             </p>
             <p>For more views, try switching between viz aids in the <i>Settings</i> panel.</p>
             <h2>UNDER CONSTRUCTION</h2>
-            <p><b>MOO Viz</b> is currently under construction.
-            At the moment, only frontier statistics are available for display.
-            Soon, we will be adding in the features from our previous work in multi-objective frontier visualization
-            (you can see the old project <a href="http://nkullman.github.io/DeschutesNF/">here</a>).
+            <p><b>MOO Viz</b> is currently under construction. At the moment, only frontier statistics are available for display.
+              Soon, we will be adding in the features from our previous work in multi-objective frontier visualization (you
+              can see the old project <a href="http://nkullman.github.io/DeschutesNF/">here</a>).
             </p>
           </div>
           <div class="modal-footer">
@@ -224,15 +232,15 @@
     <div id="masterhiddenvizdiv" class="hidden">
       <!-- Non-normalized vizs -->
       <div id="scatter2dVizDiv">
-        <button type="button" id = "zoomReset-scatter2d" class="btn btn-sm">Reset zoom</button>
-        <button type="button" id = "radiusEncode-scatter2d" class="btn btn-sm">Show/hide third variable</button>
+        <button type="button" id="zoomReset-scatter2d" class="btn btn-sm">Reset zoom</button>
+        <button type="button" id="radiusEncode-scatter2d" class="btn btn-sm">Show/hide third variable</button>
       </div>
       <div id="viztype2">viztype2</div>
       <div id="viztype3">viztype3</div>
       <!-- Normalized vizs -->
       <div id="scatter2dNVizDiv">
-        <button type="button" id = "zoomReset-scatter2dN" class="btn btn-sm">Reset zoom</button>
-        <button type="button" id = "radiusEncode-scatter2dN" class="btn btn-sm">Show/hide third variable</button>
+        <button type="button" id="zoomReset-scatter2dN" class="btn btn-sm">Reset zoom</button>
+        <button type="button" id="radiusEncode-scatter2dN" class="btn btn-sm">Show/hide third variable</button>
       </div>
       <div id="viztype5">viztype5</div>
       <div id="viztype6">viztype6</div>
@@ -243,5 +251,6 @@
     <script src="../assets/js/mooviz/viz_components_general.js"></script>
     <script src="../assets/js/mooviz/viz_components_2dScatter.js"></script>
     <script src="../assets/js/mooviz/viz_components_2dScatterNormalized.js"></script>
-  </body>
+</body>
+
 </html>
