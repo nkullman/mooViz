@@ -1,8 +1,8 @@
 /** Non-normalized 2D scatterplot */
 var scatter2d = {};
-scatter2d["margin"] = {top: 20, right: 50, bottom: 50, left: 80},
+scatter2d["margin"] = {top: 20, right: 150, bottom: 50, left: 80},
 scatter2d["width"] = 1000 - scatter2d["margin"].left - scatter2d["margin"].right,
-scatter2d["height"] = 700 - scatter2d["margin"].top - scatter2d["margin"].bottom,
+scatter2d["height"] = 650 - scatter2d["margin"].top - scatter2d["margin"].bottom,
 scatter2d["xScale"] = d3.scaleLinear()
     .range([0, scatter2d["width"]]),
 scatter2d["yScale"] = d3.scaleLinear()
@@ -111,7 +111,7 @@ function make2DScatterViz(loc){
         .attr("opacity", 0.2)
         .style("cursor","pointer");
 
-    makeRadiusLegend("#radiusLegendHolder-scatter2d");
+    makeRadiusLegend();
 
     function zoomHandler() {
         // update curr zoom extent on scatter2d
@@ -168,12 +168,12 @@ function make2DScatterViz(loc){
         .on("click", function(){
             scatter2d.encodeRadius = !scatter2d.encodeRadius;
             if (scatter2d.encodeRadius){
-                scatter2d.radiusScaleRange = [scatter2d.dotRadius*0.5, scatter2d.dotRadius*5];
+                scatter2d.radiusScaleRange = [scatter2d.dotRadius, scatter2d.dotRadius*4];
                 scatter2d.radiusScale.range(scatter2d.radiusScaleRange);
                 updateRadiusLegend();
-                d3.select("#radiusLegendHolder-scatter2d").classed("hidden",false);
+                d3.select("#radiuslegendG-scatter2d").classed("hidden",false);
             } else {
-                d3.select("#radiusLegendHolder-scatter2d").classed("hidden",true);
+                d3.select("#radiuslegendG-scatter2d").classed("hidden",true);
                 scatter2d.radiusScaleRange = [scatter2d.dotRadius, scatter2d.dotRadius];
                 scatter2d.radiusScale.range(scatter2d.radiusScaleRange);
             }
@@ -194,41 +194,52 @@ function make2DScatterViz(loc){
         d3.selectAll(".radiusLegendText-scatter2d").text(function(d,i){return radiusLegendVals[i];})
     }
 
-      function makeRadiusLegend(loc){
-        // title
-        d3.select("#radiusLegendTitle-2dscatter")
-            .text(scatter2d.objStates[2]);
+      function makeRadiusLegend(){
+
+        // legend indent from plot
+        var legIndent = 0.05*scatter2d.margin.right;
+        var largestRadius = scatter2d.radiusScale.range()[1];
         // legend entries
         var radiusLegendVals = scatter2d.radiusScale.domain();
         radiusLegendVals.splice(1,0,d3.mean(scatter2d.radiusScale.domain()));
-        // main svg
-        var width = 1000,
-            height = 75;
-        var legSvg = d3.select(loc)
-            .append("svg")
-                .attr('id',"radiuslegendSVG-scatter2d")
-                .attr('viewBox', "0 0 "+width+" "+height)
-                .attr('preserveAspectRatio',"xMinYMin meet");
 
-        var legend = legSvg.selectAll(".legend")
+        // main legend group
+        var legG = svg.append("g")
+            .attr('id',"radiuslegendG-scatter2d")
+            .attr("class","hidden")
+            .attr("transform","translate("+scatter2d.width+",0)");
+
+        // title
+        legG.append("text")
+            .attr("x", legIndent)
+            .attr("class","legendTitle")
+            .attr("id","radiusLegendTitle-2dscatter")
+            .style("text-anchor", "beginning")
+            .style("font-size","1.5em")
+            .text(scatter2d.objStates[2]);
+
+        // groups for each legend entry
+        var legend = legG.selectAll(".legend")
             .data(radiusLegendVals)
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform",function(d, i)
-                {return "translate(" + (i * width / 3) + ","+(height-scatter2d.radiusScale.range()[1])/2+")"; });
+                {return "translate("+(legIndent+largestRadius)+","+(i+1)*10*largestRadius+")"; });
 
+        // circles on the legend entries
         legend.append("circle")
             .attr("x", 2*scatter2d.radiusScale(radiusLegendVals[2]))
             .attr("class","radiusLegendEntry-scatter2d")
             .attr("r", function(d,i){return scatter2d.radiusScale(radiusLegendVals[i]);})
             .attr("fill", "#eee");
 
+        // text for the legend entries
         legend.append("text")
-            .attr("x", 2.5*scatter2d.radiusScale.range()[1])
-            .attr("y", (height)/2)
+            .attr("x", 5*largestRadius)
+            .attr("y", "0.5em")
             .attr("class","radiusLegendText-scatter2d")
             .style("text-anchor", "beginning")
-            .style("font-size","1.5em")
+            .style("font-size","1.15em")
             .text(function(d) { return d; });
       }
 }

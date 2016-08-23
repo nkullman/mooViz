@@ -111,7 +111,7 @@ function make2dscatterNViz(loc){
         .attr("opacity", 0.2)
         .style("cursor","pointer");
 
-    makeRadiusLegend("#radiusLegendHolder-scatter2dN");
+    makeRadiusLegend();
 
     function zoomHandler() {
         // update curr zoom extent on scatter2dN
