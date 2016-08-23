@@ -4,9 +4,13 @@ var frontiers = getFrontiers(data);
 var datasets = divideDataByFrontier(data, frontiers);
 var datacols = getDataColsData();
 
-// Create normalized versions of the datasets
+// Create normalized versions of the datasets and data
 var ndatasets = normalizeDatasets();
 var ndatacols = normalizeDataCols();
+var ndata = [];
+for (frontier in ndatasets){
+    ndata = ndata.concat(ndatasets[frontier]);
+}
 
 // Compute the ideal and nadir vectors for each frontier
 var ideals = { original: {}, normalized:{} };
