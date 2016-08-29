@@ -35,9 +35,11 @@
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
   <!-- Datatables -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.css"
-  />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.css"/>
   <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.12/fh-3.1.2/sc-1.4.2/se-1.2.0/datatables.min.js"></script>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <!-- Custom styles for this page -->
   <link href="../assets/css/viz.css" rel="stylesheet">
@@ -90,12 +92,12 @@
                 <option class="displayNoViz" id="displayNoneViz1" value="none">None</option>
                 <option disabled>Using original data</option>
                 <option value="scatter2dVizDiv">2D Scatterplot</option>
-                <option selected value="viztype2">viztype2</option>
-                <option value="viztype3">viztype3</option>
+                <option selected value="ParallelCoordsDiv">Parallel Coordinates</option>
+                <option value="scatter3dVizDiv">3D Scatterplot</option>
                 <option disabled>Using normalized data</option>
-                <option value="scatter2dNVizDiv">2D Scatterplot</option>
-                <option disabled class="vizoption-disabled" value="viztype5">viztype5</option>
-                <option value="viztype6">viztype6</option>
+                <option value="scatter2dNVizDiv">2D Scatterplot (norm)</option>
+                <option disabled class="vizoption-disabled" value="smallMultiplesDiv">Small Multiples</option>
+                <option value="scatter3dNVizDiv">3D Scatterplot (norm)</option>
               </select>
             </div>
             <label for="secondVizDivSelect" class="col-xs-1 col-form-label">Display 2</label>
@@ -104,12 +106,12 @@
                 <option class="displayNoViz" id="displayNoneViz2" value="none">None</option>
                 <option disabled>Using original data</option>
                 <option value="scatter2dVizDiv">2D Scatterplot</option>
-                <option disabled class="vizoption-disabled" value="viztype2">viztype2</option>
-                <option value="viztype3">viztype3</option>
+                <option disabled class="vizoption-disabled" value="ParallelCoordsDiv">Parallel Coordinates</option>
+                <option value="scatter3dVizDiv">3D Scatterplot</option>
                 <option disabled>Using normalized data</option>
-                <option value="scatter2dNVizDiv">2D Scatterplot</option>
-                <option selected value="viztype5">viztype5</option>
-                <option value="viztype6">viztype6</option>
+                <option value="scatter2dNVizDiv">2D Scatterplot (norm)</option>
+                <option selected value="smallMultiplesDiv">Small Multiples</option>
+                <option value="scatter3dNVizDiv">3D Scatterplot (norm)</option>
               </select>
             </div>
           </div>
@@ -235,21 +237,26 @@
         <button type="button" id="zoomReset-scatter2d" class="btn btn-sm">Reset zoom</button>
         <button type="button" id="radiusEncode-scatter2d" class="btn btn-sm">Show/hide third variable</button>
       </div>
-      <div id="viztype2">viztype2</div>
-      <div id="viztype3">viztype3</div>
+      <div id="ParallelCoordsDiv">Parallel Coordinates</div>
+      <div id="scatter3dVizDiv">
+        <button type="button" id="permuteObjs-3d" class="btn btn-sm">Permute objectives</button>
+      </div>
       <!-- Normalized vizs -->
       <div id="scatter2dNVizDiv">
         <button type="button" id="zoomReset-scatter2dN" class="btn btn-sm">Reset zoom</button>
         <button type="button" id="radiusEncode-scatter2dN" class="btn btn-sm">Show/hide third variable</button>
       </div>
-      <div id="viztype5">viztype5</div>
-      <div id="viztype6">viztype6</div>
+      <div id="smallMultiplesDiv">Small Multiples</div>
+      <div id="scatter3dNVizDiv">
+        <button type="button" id="permuteObjs-3dN" class="btn btn-sm">Permute objectives</button></div>
     </div>
 
     <!-- custom scripts -->
     <script src="../assets/js/mooviz/viz.js"></script>
     <script src="../assets/js/mooviz/viz_components_general.js"></script>
     <script src="../assets/js/mooviz/viz_components_2dScatter.js"></script>
+    <script src="../assets/js/mooviz/viz_components_parallelCoordinates.js"></script>
+    <script src="../assets/js/mooviz/viz_components_3dScatter.js"></script>
     <script src="../assets/js/mooviz/viz_components_2dScatterNormalized.js"></script>
 </body>
 
