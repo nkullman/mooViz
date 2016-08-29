@@ -6,8 +6,8 @@ var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 makeFrontierColorLegend();
 
 // Move the default-selected vizs to the display
-var curr1 = "viztype2";
-var curr2 = "viztype5";
+var curr1 = "ParallelCoordsDiv";
+var curr2 = "smallMultiplesDiv";
 $("#" + curr1).detach().replaceAll("#firstVizDiv>:first-child");
 $("#" + curr2).detach().replaceAll("#secondVizDiv>:first-child");
 
