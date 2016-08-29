@@ -13,7 +13,7 @@ scatter2dN["objStates"],
     scatter2dN["encodeRadius"] = false,
     scatter2dN["dotRadius"] = 4,
     scatter2dN["radiusScaleRange"] = [scatter2dN["dotRadius"], scatter2dN["dotRadius"]],
-    scatter2dN["radiusScale"] = d3.scaleSqrt().range(scatter2dN["radiusScaleRange"]),
+    scatter2dN["radiusScale"] = d3.scaleLinear().range(scatter2dN["radiusScaleRange"]),
     scatter2dN["k"] = 1;
 
 /* Make the viz */
