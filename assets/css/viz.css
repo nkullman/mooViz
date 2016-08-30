@@ -16,3 +16,23 @@ body {
 .theme-showcase .navbar .container {
   width: auto;
 }
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis .label:hover {
+    text-decoration: underline;
+}
+.xAxisLabel,
+.yAxisLabel {
+  font-size: 1.15em;
+}
+
+.dot.selected,
+.dot.active {
+  opacity: 1 !important;
+}
