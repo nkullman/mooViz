@@ -9,6 +9,12 @@ if (Object.keys(datacols).length < 4) {
 // make the chart
 make3DScatterPlot("scatter3dVizDiv");
 
+// add functionality for permute objs button click
+
+// add plot resizing
+
+// add click functionality to points
+
 function make3DScatterPlot(loc) {
     var scatterSeries = [];
     frontiers.forEach(function (d) {
