@@ -101,18 +101,21 @@ function drawParallelCoordsPlot(loc) {
         .text(function (d) { return d; });
 
     // Add and store a brush for each axis.
-    pcg.append("g")
+    var theBrushes = pcg.append("g")
         .attr("class", "brush")
+        .attr("objective", function (d) { return d; })
         .each(function (d) {
             pcyScale[d].brush = d3.brushY()
                 .on("start", pcbrushstart)
                 .on("brush", pcbrush)
-                .extent([[-15,0],[15,pcheight]]);
+                .extent([[-15, 0], [15, pcheight]]);
+            pcyScale[d].brushEmpty = true;
+            pcyScale[d].brushExtent = null;
             d3.select(this).call(pcyScale[d].brush);
         });
 
     // Ensure proper classing of paths
-    //updateClassingOfSelectedSolutionsPathsAndDots(selected_solutions);
+    //updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
 
     function position(d) {
         var v = pcDragging[d];
@@ -140,16 +143,21 @@ function drawParallelCoordsPlot(loc) {
 
     // Handles a brush event, toggling the display of foreground lines.
     function pcbrush() {
-        var actives = dimensions.filter(function (p) { return !pcyScale[p].brush.empty(); }),
-            extents = actives.map(function (p) { return pcyScale[p].brush.extent(); });
-        selected_solutions = [];
+        var currSelection = d3.event.selection,
+            currObj = this.getAttribute("objective");
+        pcyScale[currObj].brushExtent = currSelection;
+        pcyScale[currObj].brushEmpty = currSelection === null;
+
+        var actives = dimensions.filter(function (p) { return !pcyScale[p].brushEmpty; }),
+            extents = actives.map(function (p) { return pcyScale[p].brushExtent; });
+        selectedSolutions = [];
         d3.selectAll(".pcforegroundPath").each(function (d) {
             if (inPCBrushSelection(d, actives, extents)) {
-                selected_solutions.push(d.mvid); console.log("made it there")
+                selectedSolutions.push(d.mvid);
             }
         });
-        if (actives.length === 0) { selected_solutions = []; }
-        console.log("made it here")
-        //updateClassingOfSelectedSolutionsPathsAndDots(selected_solutions);
+        if (actives.length === 0) { selectedSolutions = []; }
+        //updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
+        console.log(selectedSolutions);
     }
 }
