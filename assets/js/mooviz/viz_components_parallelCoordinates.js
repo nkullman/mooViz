@@ -67,13 +67,13 @@ function drawParallelCoordsPlot(loc) {
         .attr("id", function (d) { return "pc-path-" + d.mvid; })
         .attr("stroke", function (d) { return colorScale(d.Frontier); })
         .style("fill", "none")
-        .on('mouseover', function () {
+        .on('mouseover', function (d) {
             //d3.select(this).call(tip.show);
-            //classMeAndMyBrothers(this, "active", true);
+            classMeAndMyBrothers(d.mvid, "active", true);
         })
-        .on('mouseout', function () {
+        .on('mouseout', function (d) {
             //d3.select(this).call(tip.hide);
-            //classMeAndMyBrothers(this, "active", false);
+            classMeAndMyBrothers(d.mvid, "active", false);
         })
         .on("click", function (d) {
             clickToggleSelected(d);
@@ -136,6 +136,16 @@ function drawParallelCoordsPlot(loc) {
         pcyScale[currObj].brushExtent = null;
         pcyScale[currObj].brushEmpty = true;
         d3.event.sourceEvent.stopPropagation();
+        var actives = dimensions.filter(function (p) { return !pcyScale[p].brushEmpty; }),
+            extents = actives.map(function (p) { return pcyScale[p].brushExtent; });
+        selectedSolutions = [];
+        d3.selectAll(".pcforegroundPath").each(function (d) {
+            if (inPCBrushSelection(d, actives, extents)) {
+                selectedSolutions.push(d.mvid);
+            }
+        });
+        if (actives.length === 0) { selectedSolutions = []; }
+        updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
     }
 
     function inPCBrushSelection(d, actives, extents) {
@@ -160,6 +170,15 @@ function drawParallelCoordsPlot(loc) {
             }
         });
         if (actives.length === 0) { selectedSolutions = []; }
-        //updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
+        updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
+    }
+    function updateClassingOfSelectedSolutionsPathsAndDots(ss) {
+        d3.selectAll(".actionableDrawingElement").classed("selected", false);
+        ss.forEach(function (d) {
+            d3.selectAll(".actionableDrawingElement." + d).classed("selected", true)
+        });
+    }
+    function classMeAndMyBrothers(mvid, className, classification) {
+        d3.selectAll(".actionableDrawingElement."+mvid).classed(className, classification)
     }
 }
