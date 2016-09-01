@@ -132,12 +132,15 @@ function drawParallelCoordsPlot(loc) {
     }
 
     function pcbrushstart() {
+        var currObj = this.getAttribute("objective");
+        pcyScale[currObj].brushExtent = null;
+        pcyScale[currObj].brushEmpty = true;
         d3.event.sourceEvent.stopPropagation();
     }
 
     function inPCBrushSelection(d, actives, extents) {
         return actives.every(function (p, i) {
-            return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+            return extents[i][0] <= pcyScale[p](d[p]) && pcyScale[p](d[p]) <= extents[i][1];
         }) ? true : false;
     }
 
@@ -145,8 +148,8 @@ function drawParallelCoordsPlot(loc) {
     function pcbrush() {
         var currSelection = d3.event.selection,
             currObj = this.getAttribute("objective");
-        pcyScale[currObj].brushExtent = currSelection;
         pcyScale[currObj].brushEmpty = currSelection === null;
+        pcyScale[currObj].brushExtent = currSelection;
 
         var actives = dimensions.filter(function (p) { return !pcyScale[p].brushEmpty; }),
             extents = actives.map(function (p) { return pcyScale[p].brushExtent; });
@@ -158,6 +161,5 @@ function drawParallelCoordsPlot(loc) {
         });
         if (actives.length === 0) { selectedSolutions = []; }
         //updateClassingOfSelectedSolutionsPathsAndDots(selectedSolutions);
-        console.log(selectedSolutions);
     }
 }
