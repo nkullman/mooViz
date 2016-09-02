@@ -4,3 +4,5 @@
 - [ ] Add small multiples plot
 - [ ] Fix solution selection in all tables and charts
 - [ ] Make color legend checkbox-able to view only certain frontiers
+- [ ] Add ability to undo most recent selection/deselection
+- [ ] Change selected solutions from array to set
