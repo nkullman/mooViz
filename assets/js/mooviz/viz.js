@@ -79,7 +79,7 @@ function makeSolutionDataTable(dataTableLocSelector) {
         .enter()
         .append("tr")
         .attr("id", function (d) { return "datatable-row-" + d; })
-        .attr("class", function (d) { return "actionableDrawingElement " + d.mvid; });
+        .attr("class", function (d) { return "actionableDrawingElement " + d; });
     // fill row header cells
     rows.selectAll("th")
         .data(function (row) {
