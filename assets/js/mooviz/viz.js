@@ -188,7 +188,7 @@ function makeConflictMetricTables(tableContainerSelector) {
         .append("a")
         .attr("data-toggle", "collapse")
         .attr("href", "#intrafrontierMeasuresOuter")
-        .text("Compare Conflict Within Frontier");
+        .text("Pairwise Objective Conflict");
     var intrafouterpanelBody = intrafouterpanel.append("div")
         .attr("class", "panel-collapse collapse")
         .attr("id", "intrafrontierMeasuresOuter")
