@@ -311,7 +311,7 @@ function makeIntraFrontierMeasuresTable(tc, f) {
     var thead = table.append("thead");
     var tbody = table.append("tbody");
 
-    var columns = ["Objective 1", "Objective 2", "2D-Hypervolume", "PearsonCorrelation"];
+    var columns = ["Objective 1", "Objective 2", "Conflict"];
 
     // append the header row
     thead.append("tr")
@@ -471,21 +471,7 @@ function computeIntrafrontierStats(dataset, ivec) {
             if (key === "mvid" || key === n1 || key === n2) continue;
             delete ivecForDomdRemoval[key];
         }
-        // local copy of the dataset with dominated solutions removed in the 2d plane for n1 and n2,
-        // and sorted in descending order according to the first objective
-        var ldat = removeDominated(JSON.parse(JSON.stringify(dataset)), ivecForDomdRemoval)
-            .sort(function (a, b) { return b[n1] - a[n1]; });
-        var o1nd = ldat.map(function (row) { return row[n1] });
-        var o2nd = ldat.map(function (row) { return row[n2] });
-        result[combonm]["PearsonCorrelation"] = computePearsonCoefficient(o1, o2);
-        result[combonm]["2D-Hypervolume"] = compute2DHypervol(o1nd, o2nd);
-    }
-    function compute2DHypervol(a1, a2) {
-        var area = a1[0] * a2[0];
-        for (var i = 1; i < a1.length; i++) {
-            area += (a2[i] - a2[i - 1]) * a1[i];
-        }
-        return area;
+        result[combonm]["Conflict"] = computeNewConflictMeasure(o1, o2);
     }
     return result;
 }
@@ -859,21 +845,148 @@ function k_combinations(set, k) {
     return combs;
 }
 
-function computePearsonCoefficient(o1, o2) {
-    var num = covar(o1, o2);
-    var denom = d3.deviation(o1) * d3.deviation(o2);
-    return num / denom;
+/** Compute customized conflict metric.
+ * Metric is a combination of Spearman's rho and 
+ * average distance to the ideal solution */
+function computeNewConflictMeasure (arrX, arrY) {
 
-    function covar(arr1, arr2) {
-        var u = d3.mean(arr1);
-        var v = d3.mean(arr2);
-        var arr1Len = arr1.length;
-        var sq_dev = new Array(arr1Len);
-        var i;
-        for (i = 0; i < arr1Len; i++)
-            sq_dev[i] = (arr1[i] - u) * (arr2[i] - v);
-        return d3.sum(sq_dev) / (arr1Len - 1);
-    };
+    var rho = computeSpearmans(arrX, arrY);
+    var d = computeDistanceRatio(arrX, arrY);
+
+
+    return d * (1.0 - rho) / 2.0;
+}
+
+/** Computes the distance ratio:
+ * 
+ * (avg dist from solutions to ideal)
+ * ----------------------------------
+ * (distance from nadir to ideal)
+ * 
+ * 
+ * Both arrays must be for maximized objectives
+ * */
+function computeDistanceRatio (arrX, arrY) {
+    // simple error handling for input arrays of nonequal lengths
+    if (arrX.length !== arrY.length) { return null; }
+
+    var n = arrX.length;
+
+    // get nadir and ideal solutions (assumes objs are to be maxed)
+    var nadirSolution = [Math.min.apply(null, arrX), Math.min.apply(null, arrY)];
+    var idealSolution = [Math.max.apply(null, arrX), Math.max.apply(null, arrY)];
+
+    // max distance
+    var dmax = dist(nadirSolution, idealSolution);
+
+    // average distance from points to the ideal solution
+    var dbar = 0;
+    for (var i = 0; i < n; i++) {
+        dbar += dist([arrX[i], arrY[i]], idealSolution);
+    }
+    dbar /= n;
+
+    return dbar / dmax;
+}
+
+/** Computes the distance between 2-d points pt1 and pt2 */
+function dist (pt1, pt2) {
+    return Math.sqrt(Math.pow((pt1[0] - pt2[0]), 2) + Math.pow((pt1[1] - pt2[1]), 2));
+}
+
+/** Computes Spearman's rho, adjusted for ties */
+function computeSpearmans (arrX, arrY) {
+
+    // simple error handling for input arrays of nonequal lengths
+    if (arrX.length !== arrY.length) { return null; }
+
+    // number of observations
+    var n = arrX.length;
+
+    // rank datasets
+    var xRanked = rankArray(arrX),
+        yRanked = rankArray(arrY);
+
+    // sum of distances between ranks
+    var dsq = 0;
+    for (var i = 0; i < n; i++) {
+        dsq += Math.pow(xRanked[i] - yRanked[i], 2);
+    }
+
+    // compute correction for ties
+    var xTies = countTies(arrX),
+        yTies = countTies(arrY);
+    var xCorrection = 0,
+        yCorrection = 0;
+    for (var tieLength in xTies) {
+        xCorrection += xTies[tieLength] * tieLength * (Math.pow(tieLength, 2) - 1)
+    }
+    xCorrection /= 12.0;
+    for (var tieLength in yTies) {
+        yCorrection += yTies[tieLength] * tieLength * (Math.pow(tieLength, 2) - 1)
+    }
+    yCorrection /= 12.0;
+
+    // denominator
+    var denominator = n * (Math.pow(n, 2) - 1) / 6.0;
+
+    // compute rho
+    var rho = denominator - dsq - xCorrection - yCorrection;
+    rho /= Math.sqrt((denominator - 2 * xCorrection) * (denominator - 2 * yCorrection))
+
+    return rho;
+}
+
+/** Computes the rank array for arr, where each entry in arr is 
+ * assigned a value 1 thru n, where n is arr.length.
+ * 
+ * Tied entries in arr are each given the average rank of the ties.
+ * Lower ranks are not increased
+ */
+function rankArray (arr) {
+
+    // ranking without averaging
+    var sorted = arr.slice().sort(function (a, b) { return b - a });
+    var ranks = arr.slice().map(function (v) { return sorted.indexOf(v) + 1 });
+
+    // counts of each rank
+    var counts = {};
+    ranks.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; });
+
+    // average duplicates
+    ranks = ranks.map(function (x) { return x + 0.5 * ((counts[x] || 0) - 1); });
+
+    return ranks;
+}
+
+/** Counts the number of ties in arr, and returns
+ * an object with
+ * a key for each tie length (an entry n for each n-way tie) and 
+ * a value corresponding to the number of key-way (n-way) ties
+ */
+function countTies (arr) {
+    var ties = {},
+        arrSorted = arr.slice().sort(),
+        currValue = arrSorted[0],
+        tieLength = 1;
+
+    for (var i = 1; i < arrSorted.length; i++) {
+        if (arrSorted[i] === currValue) {
+            tieLength++;
+        } else {
+            if (tieLength > 1) {
+                if (ties[tieLength] === undefined) ties[tieLength] = 0;
+                ties[tieLength]++;
+            }
+            currValue = arrSorted[i];
+            tieLength = 1;
+        }
+    }
+    if (tieLength > 1) {
+        if (ties[tieLength] === undefined) ties[tieLength] = 0;
+        ties[tieLength]++;
+    }
+    return ties;
 }
 
 /** Assumes all objectives are max and normalized */
