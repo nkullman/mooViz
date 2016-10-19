@@ -71,7 +71,7 @@ function setObjsSensesForPreloadedData(filename){
     */
     if (filename === "deschutesdata"){
         objsSenses[objectives[0]] = 0;
-        objsSenses[objectives[2]] = 0;
+        objsSenses[objectives[1]] = 0;
 
         return objsSenses;
     } else { // (filename === "chiledata" || filename === "packforestdata")
