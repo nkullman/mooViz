@@ -96,7 +96,16 @@ function drawParallelCoordsPlot(loc) {
         .attr("class", "axis")
         .each(function (d) { d3.select(this).call(pcaxis.scale(pcyScale[d])); });
     pcg.append("text")
-        .style("text-anchor", "middle")
+        .style("text-anchor", function (d, i) { 
+            if (i === 0) return "start"; 
+            else if (i === Object.keys(datacols).length - 1) return "end"; 
+            else return "middle";
+        })
+        .attr("x", function (d, i) { 
+            if (i === 0) return -0.75*pcmargin.left; 
+            else if (i === Object.keys(datacols).length - 1) return 0.75*pcmargin.right; 
+            else return 0; 
+        })
         .attr("y", -9)
         .text(function (d) { return d; });
 
@@ -179,6 +188,6 @@ function drawParallelCoordsPlot(loc) {
         });
     }
     function classMeAndMyBrothers(mvid, className, classification) {
-        d3.selectAll(".actionableDrawingElement."+mvid).classed(className, classification)
+        d3.selectAll(".actionableDrawingElement." + mvid).classed(className, classification)
     }
 }
