@@ -11,7 +11,7 @@ scatter2dN["margin"] = { top: 20, right: 150, bottom: 50, left: 80 },
 scatter2dN["yAxis"] = d3.axisLeft(scatter2dN["yScale"]);
 scatter2dN["objStates"],
     scatter2dN["encodeRadius"] = false,
-    scatter2dN["dotRadius"] = 4,
+    scatter2dN["dotRadius"] = 6,
     scatter2dN["radiusScaleRange"] = [scatter2dN["dotRadius"], scatter2dN["dotRadius"]],
     scatter2dN["radiusScale"] = d3.scaleLinear().range(scatter2dN["radiusScaleRange"]),
     scatter2dN["k"] = 1;
@@ -104,7 +104,7 @@ function make2dscatterNViz(loc) {
         .attr("cx", function (d) { return scatter2dN["xScale"](d[scatter2dN["objStates"][0]]); })
         .attr("cy", function (d) { return scatter2dN["yScale"](d[scatter2dN["objStates"][1]]); })
         .attr("fill", function (d) { return colorScale(d.Frontier); })
-        .attr("opacity", 0.2)
+        .attr("opacity", 0.75)
         .style("cursor", "pointer");
 
     makeRadiusLegend();
