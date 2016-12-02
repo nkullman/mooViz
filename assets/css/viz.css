@@ -29,7 +29,11 @@ body {
 }
 .xAxisLabel,
 .yAxisLabel {
-  font-size: 1.15em;
+  font-size: 1.35em;
+}
+
+.tick text {
+  font-size: 1.4em;
 }
 
 .actionableDrawingElement.selected,
