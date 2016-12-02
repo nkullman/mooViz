@@ -29,10 +29,20 @@ body {
 }
 .xAxisLabel,
 .yAxisLabel {
-  font-size: 1.15em;
+  font-size: 1.35em;
+}
+
+.tick text {
+  font-size: 1.4em;
 }
 
 .actionableDrawingElement.selected,
 .actionableDrawingElement.active {
   opacity: 1 !important;
+}
+
+/* Enlarge font size in tables */
+td,
+th {
+  font-size: 1.5em;
 }

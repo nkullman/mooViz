@@ -471,7 +471,7 @@ function computeIntrafrontierStats(dataset, ivec) {
             if (key === "mvid" || key === n1 || key === n2) continue;
             delete ivecForDomdRemoval[key];
         }
-        result[combonm]["Conflict"] = computeNewConflictMeasure(o1, o2);
+        result[combonm]["Conflict"] = computeNewConflictMeasure(o1, o2).toFixed(4);
     }
     return result;
 }
@@ -495,8 +495,8 @@ function computeHypervolumes(datasets, idealvecs, unaryHypervols) {
             var h2 = unaryHypervols[f2];
             var merged = removeDominated(datasets[f1].concat(datasets[f2]), idealvecs[f1]);
             var mergedHypervol = computeHypervolume(merged, idealvecs[f1]);
-            hypervols[c1] = mergedHypervol - h2;
-            hypervols[c2] = mergedHypervol - h1;
+            hypervols[c1] = (mergedHypervol - h2).toFixed(4);
+            hypervols[c2] = (mergedHypervol - h1).toFixed(4);
         }
     }
 
@@ -596,7 +596,7 @@ function computeHypervolumes(datasets, idealvecs, unaryHypervols) {
 
         /* End of method definitions. Call to compute: */
         hypervolume = getFrontierVolume(hypervolume, ldat, completedFrontierPoints);
-        return hypervolume;
+        return hypervolume.toFixed(4);
     }
     return hypervols;
 }
@@ -630,7 +630,7 @@ function computeSpacingMetric(datasets, idealvecs) {
         // computing spacing = std deviation of dist between pts on frontier
         for (var i = 0; i < dists.length; i++) dists[i] = Math.pow(dists[i] - dbar, 2);
         var spacing = Math.sqrt(d3.sum(dists) / (dists.length - 1));
-        return spacing;
+        return spacing.toFixed(4);
     }
     return spacings;
 }
@@ -654,7 +654,7 @@ function computeUnaryEpsilonIs(datasets, ivecs) {
             minTranslationToCover = Math.min(minTranslationToCover, maxCoveringDist);
         }
         eps = Math.max(eps, minTranslationToCover);
-        return eps;
+        return eps.toFixed(4);
     }
     return unaryEpsIs;
 }
@@ -686,8 +686,8 @@ function computeBinaryEpsilonIs(datasets, ivecs, nadirs) {
         var f2 = frontierCombos[i][1];
         var c1 = f1 + "_" + f2;
         var c2 = f2 + "_" + f1;
-        binaryEpsIs[c1] = computeBinaryEps(datasets[f1], datasets[f2], ivecs[f1]);
-        binaryEpsIs[c2] = computeBinaryEps(datasets[f2], datasets[f1], ivecs[f1]);
+        binaryEpsIs[c1] = computeBinaryEps(datasets[f1], datasets[f2], ivecs[f1]).toFixed(4);
+        binaryEpsIs[c2] = computeBinaryEps(datasets[f2], datasets[f1], ivecs[f1]).toFixed(4);
     }
     return binaryEpsIs;
 }
@@ -697,7 +697,7 @@ function computeDistsToIdeal(datasets, ivecs) {
     var distsToIdeal = {};
 
     for (f in datasets) {
-        distsToIdeal[f] = computeDistToIdeal(datasets[f], ivecs[f]);
+        distsToIdeal[f] = computeDistToIdeal(datasets[f], ivecs[f]).toFixed(4);
     }
 
     return distsToIdeal;
