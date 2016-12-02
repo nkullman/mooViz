@@ -36,3 +36,9 @@ body {
 .actionableDrawingElement.active {
   opacity: 1 !important;
 }
+
+/* Enlarge font size in tables */
+td,
+th {
+  font-size: 1.5em;
+}
