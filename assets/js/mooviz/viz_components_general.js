@@ -7,7 +7,7 @@ makeFrontierColorLegend();
 
 // Move the default-selected vizs to the display
 var curr1 = "ParallelCoordsDiv";
-var curr2 = "smallMultiplesDiv";
+var curr2 = "scatter2dNVizDiv";
 $("#" + curr1).detach().replaceAll("#firstVizDiv>:first-child");
 $("#" + curr2).detach().replaceAll("#secondVizDiv>:first-child");
 
