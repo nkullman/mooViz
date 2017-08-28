@@ -412,7 +412,7 @@ function getNadirVectors(d, dc) {
  * Schott's spacing metric
  * Average distance to ideal
  * 
- * Only the normalized datasets are used in the analyis.
+ * Only the normalized datasets are used in the analysis.
  * This is the only way to make the objective space really make sense.
  * Approach suggested by this source:
  * http://www.tik.ee.ethz.ch/pisa/publications/emo-tutorial-2up.pdf
